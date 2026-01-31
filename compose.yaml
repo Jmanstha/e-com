@@ -1,0 +1,117 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+#
+# services:
+#   server:
+#     build:
+#       context: ./backend
+#     ports:
+#       - 8000:8000
+
+# The commented out section below is an example of how to define a PostgreSQL
+# database that your application can use. `depends_on` tells Docker Compose to
+# start the database before your application. The `db-data` volume persists the
+# database data between container restarts. The `db-password` secret is used
+# to set the database password. You must create `db/password.txt` and add
+# a password of your choosing to it before running `docker compose up`.
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#   db:
+#     image: postgres
+#     restart: always
+#     user: postgres
+#     secrets:
+#       - db-password
+#     volumes:
+#       - db-data:/var/lib/postgresql/data
+#     environment:
+#       - POSTGRES_DB=example
+#       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+#     expose:
+#       - 5432
+#     healthcheck:
+#       test: [ "CMD", "pg_isready" ]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+# volumes:
+#   db-data:
+# secrets:
+#   db-password:
+#     file: db/password.txt
+
+# Defines the start of the services (containers) that make up your app
+services:
+
+  # This is the name of your first service (your FastAPI backend)
+  server:
+    # Tells Docker how to build the image for this container
+    build:
+      # The folder Docker should look in for the Dockerfile and code
+      context: ./backend  
+    
+    # Maps ports: "Host Port (Your Laptop) : Container Port (The App)"
+    ports:
+      - "8000:8000"
+    
+    # Sets environment variables inside the container
+    environment:
+      # Injects the DATABASE_URL from your .env file into the container
+      - DATABASE_URL=${DATABASE_URL}
+    
+    # Sets the startup order
+    depends_on:
+      # Tells the server to wait for the 'db' service
+      db:
+        # Specifically wait until the 'db' passes its healthcheck (below)
+        condition: service_healthy
+
+  # This is the name of your second service (the database)
+  db:
+    # The pre-built image to download from Docker Hub
+    image: postgres:16-alpine
+    
+    # If the DB crashes or the computer restarts, start this container again
+    restart: always
+    
+    # Configuration variables required by the official Postgres image
+    environment:
+      # Sets the superuser name using your .env variable
+      - POSTGRES_USER=${POSTGRES_USER}
+      # Sets the superuser password using your .env variable
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      # Sets the default database name to create on startup
+      - POSTGRES_DB=${POSTGRES_DB}
+    
+    # Allows you to connect to the DB from your laptop (DBeaver, etc.)
+    ports:
+      - "5432:5432"
+    
+    # Persistent storage
+    volumes:
+      # "Volume Name : Path inside the container where Postgres stores data"
+      - db-data:/var/lib/postgresql/data
+    
+    # A script that runs inside the container to check if it's actually "ready"
+    healthcheck:
+      # The command to run (-U is user, -d is database)
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      # How long to wait between checks
+      interval: 5s
+      # How long to wait for a single check to respond before failing
+      timeout: 5s
+      # How many times to fail before marking the container as "unhealthy"
+      retries: 5
+
+# Defines named volumes that are shared across the whole project
+volumes:
+  # This matches the name used in the 'db' service above
+  db-data:
