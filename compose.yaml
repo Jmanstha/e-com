@@ -61,12 +61,14 @@ services:
     # Maps ports: "Host Port (Your Laptop) : Container Port (The App)"
     ports:
       - "8000:8000"
-    
+    volumes:
+      - ./backend:/src # Use this instead if your Dockerfile says WORKDIR /src
     # Sets environment variables inside the container
     environment:
       # Injects the DATABASE_URL from your .env file into the container
       - DATABASE_URL=${DATABASE_URL}
-    
+    # This overrides the Dockerfile CMD specifically for your local machine
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     # Sets the startup order
     depends_on:
       # Tells the server to wait for the 'db' service
