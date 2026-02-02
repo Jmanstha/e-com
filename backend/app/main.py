@@ -1,5 +1,3 @@
-from contextlib import asynccontextmanager
-
 import uvicorn
 from fastapi import FastAPI
 
@@ -10,5 +8,7 @@ app = FastAPI()
 app.include_router(auth_routes.router, prefix="/auth")
 app.include_router(product_routes.router, prefix="/products")
 
-if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+@app.get("/")
+async def root():
+    return {"message": "E-com API is running"}
