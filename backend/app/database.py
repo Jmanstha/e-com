@@ -1,19 +1,28 @@
 import os
+from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
-from sqlmodel import Session, SQLModel, create_engine
-from sqlmodel.ext.asyncio.engine import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlmodel import SQLModel
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql+asyncpg://postgres:jman@db:5432/ecomdb"
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set!")
 
-# Use create_async_engine for asyncpg
-engine = AsyncEngine(create_async_engine(DATABASE_URL, echo=True))
+engine = create_async_engine(DATABASE_URL, echo=True, future=True)
 
 
-async def get_db():
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async def init_db():
+    async with engine.begin() as conn:
+        # alembic creates the tables for me so i dont need this line but it doesnt hurt
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+
+# async_sessionmaker returns a generator for the session not an actual session instance hence the generator hint
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async_session = async_sessionmaker(
+        engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
     async with async_session() as session:
-        yield sessionengine(DATABASE_URL)
+        yield session

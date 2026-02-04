@@ -1,21 +1,21 @@
-from sqlmodel import SQLModel
+import uuid
+
+from sqlmodel import Field, SQLModel
 
 
 # base info for every user
 class UserBase(SQLModel):
-    pass
-
-
-# base info for every Product
-class ProductBase(SQLModel):
-    pass
+    username: str
+    useremail: str = Field(unique=True, index=True)
+    userphone: str
 
 
 # input schema to take in password
 class UserCreate(UserBase):
-    pass
+    password: str
 
 
 # output schema to show id maybe
 class UserResponse(UserBase):
-    pass
+    id: uuid.UUID
+    is_admin: bool
