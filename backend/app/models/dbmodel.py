@@ -58,8 +58,8 @@ class OrderItem(SQLModel, table=True):
         index=True,
         nullable=False,
     )
-    product_id: int = Field(foreign_key="Product.id", primary_key=True)
-    user_id: int = Field(foreign_key="User.id", primary_key=True)
+    product_id: uuid.UUID = Field(foreign_key="Product.id", primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="User.id", primary_key=True)
     quantity: int = Field(nullable=False)
 
 
