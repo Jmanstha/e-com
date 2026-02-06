@@ -16,7 +16,7 @@ class User(UserBase, table=True):
         index=True,
         nullable=False,
     )
-    password_hash: str
+    hashed_password: str
     is_admin: bool = Field(default=False)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

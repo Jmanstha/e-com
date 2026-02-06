@@ -36,3 +36,5 @@ db-shell: ## Enter the Postgres terminal
 
 clean: ## Remove containers and wipe the database volumes (WARNING: Data loss)
 	docker compose down -v
+build: ## Rebuild the image after changing requirements
+	docker compose up -d --build

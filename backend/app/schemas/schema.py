@@ -7,7 +7,7 @@ from sqlmodel import Field, SQLModel
 class UserBase(SQLModel):
     username: str
     useremail: str = Field(unique=True, index=True)
-    userphone: str
+    userphone: str = Field(unique=True, index=True)
 
 
 # input schema to take in password

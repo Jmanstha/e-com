@@ -18,7 +18,7 @@ async def init_db():
 
 
 # async_sessionmaker returns a generator for the session not an actual session instance hence the generator hint
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async_session = async_sessionmaker(
         engine,
         class_=AsyncSession,
