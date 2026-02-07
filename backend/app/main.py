@@ -1,9 +1,11 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 
 from app.database import init_db
 from app.endpoints import auth_routes, product_routes
+from app.models.dbmodel import User
+from app.services.deps import get_current_user
 
 
 @asynccontextmanager
@@ -19,5 +21,7 @@ app.include_router(product_routes.router, prefix="/products")
 
 
 @app.get("/")
-async def root():
+async def root(
+    user: User = Depends(get_current_user),
+):
     return {"message": "E-com API is running"}

@@ -57,7 +57,9 @@ services:
     build:
       # The folder Docker should look in for the Dockerfile and code
       context: ./backend  
-    
+    # This pulls variables from your root .env and injects them into the container
+    env_file:
+      - ./.env
     # Maps ports: "Host Port (Your Laptop) : Container Port (The App)"
     ports:
       - "8000:8000"

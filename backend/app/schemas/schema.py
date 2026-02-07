@@ -19,3 +19,13 @@ class UserCreate(UserBase):
 class UserResponse(UserBase):
     id: uuid.UUID
     is_admin: bool
+
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str = Field(default="bearer")
+    expires_in: int
+
+
+class TokenPayload(SQLModel):
+    sub: str | None = None
