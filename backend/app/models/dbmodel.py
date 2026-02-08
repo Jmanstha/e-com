@@ -71,4 +71,3 @@ class Cart(SQLModel, table=True):
         index=True,
         nullable=False,
     )
-    pass

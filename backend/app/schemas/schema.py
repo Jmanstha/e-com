@@ -29,3 +29,16 @@ class Token(SQLModel):
 
 class TokenPayload(SQLModel):
     sub: str | None = None
+
+
+class ProductCreate(SQLModel):
+    name: str
+    price: int
+    description: str
+
+
+class ProductDisplay(SQLModel):
+    id: int
+    name: str
+    price: int
+    description: str

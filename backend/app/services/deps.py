@@ -1,4 +1,5 @@
 import os
+from threading import current_thread
 from typing import Annotated
 
 import jwt
@@ -44,3 +45,15 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+current_user = Annotated[User, Depends(get_current_user)]
+
+
+async def get_current_active_admin(current_user: current_user) -> User:
+    current_user.is_admin = True
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=403, detail="The user doesn't have enough privileges"
+        )
+    return current_user

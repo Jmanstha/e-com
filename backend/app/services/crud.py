@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models.dbmodel import User
-from app.schemas.schema import UserCreate
+from app.models.dbmodel import Product, User
+from app.schemas.schema import ProductCreate, UserCreate
 from app.utils.security import get_password_hash, verify_password
 
 
@@ -55,3 +55,27 @@ async def authenticate(
         await session.commit()
         await session.refresh(db_user)
     return db_user
+
+
+async def create_product(
+    *, session: AsyncSession, product_create: ProductCreate
+) -> Product:
+    db_obj = Product.model_validate(
+        product_create,
+    )
+
+    session.add(db_obj)
+    await session.commit()
+    await session.refresh(db_obj)
+    return db_obj
+
+
+async def get_product_by_name(*, session: AsyncSession, name: str) -> Product | None:
+    statement = select(Product).where(Product.name == name)
+    result = await session.execute(statement)
+    session_user = result.scalars().first()
+    return session_user
+
+
+async def get_products_paginated():
+    pass
