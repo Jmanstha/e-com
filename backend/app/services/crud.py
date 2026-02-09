@@ -6,7 +6,11 @@ from app.schemas.schema import ProductCreate, UserCreate
 from app.utils.security import get_password_hash, verify_password
 
 
-async def create_user(*, session: AsyncSession, user_create: UserCreate) -> User:
+async def create_user(
+    *,
+    session: AsyncSession,
+    user_create: UserCreate,
+) -> User:
     db_obj = User.model_validate(
         user_create,
         update={"hashed_password": await get_password_hash(user_create.password)},
@@ -21,7 +25,11 @@ async def create_user(*, session: AsyncSession, user_create: UserCreate) -> User
     return db_obj
 
 
-async def get_user_by_email(*, session: AsyncSession, email: str) -> User | None:
+async def get_user_by_email(
+    *,
+    session: AsyncSession,
+    email: str,
+) -> User | None:
     statement = select(User).where(User.useremail == email)
     # could not user .first() in the same line because it would apply on the promise of the async operation and not the result of the execution
     result = await session.execute(statement)
@@ -35,7 +43,10 @@ DUMMY_HASH = "$argon2id$v=19$m=65536,t=3,p=4$MjQyZWE1MzBjYjJlZTI0Yw$YTU4NGM5ZTZm
 
 
 async def authenticate(
-    *, session: AsyncSession, email: str, password: str
+    *,
+    session: AsyncSession,
+    email: str,
+    password: str,
 ) -> User | None:
     db_user = await get_user_by_email(session=session, email=email)
     if not db_user:
@@ -58,7 +69,9 @@ async def authenticate(
 
 
 async def create_product(
-    *, session: AsyncSession, product_create: ProductCreate
+    *,
+    session: AsyncSession,
+    product_create: ProductCreate,
 ) -> Product:
     db_obj = Product.model_validate(
         product_create,
@@ -70,12 +83,24 @@ async def create_product(
     return db_obj
 
 
-async def get_product_by_name(*, session: AsyncSession, name: str) -> Product | None:
+async def get_product_by_name(
+    *,
+    session: AsyncSession,
+    name: str,
+) -> Product | None:
     statement = select(Product).where(Product.name == name)
     result = await session.execute(statement)
     session_user = result.scalars().first()
     return session_user
 
 
-async def get_products_paginated():
-    pass
+async def get_products_paginated(
+    *,
+    session: AsyncSession,
+    limit: int,
+    offset: int,
+):
+    statement = select(Product).offset(offset).limit(limit)
+    result = await session.execute(statement)
+    result_scaled = result.scalars().all()
+    return result_scaled

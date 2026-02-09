@@ -38,7 +38,7 @@ class ProductCreate(SQLModel):
 
 
 class ProductDisplay(SQLModel):
-    id: int
+    id: uuid.UUID
     name: str
     price: int
     description: str
