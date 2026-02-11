@@ -1,4 +1,5 @@
 import os
+import uuid
 from typing import Annotated, List
 
 from dotenv import load_dotenv
@@ -9,7 +10,10 @@ from app.database import get_async_session
 from app.models.dbmodel import Product, User
 from app.schemas.schema import ProductCreate, ProductDisplay
 from app.services.crud import (
+    check_for_cart_or_create,
+    create_cart_item,
     create_product,
+    get_product_by_id,
     get_product_by_name,
     get_products_paginated,
 )
@@ -23,7 +27,7 @@ load_dotenv()
 session = Annotated[AsyncSession, Depends(get_async_session)]
 
 
-@router.get("/products", response_model=List[ProductDisplay])
+@router.get("/", response_model=List[ProductDisplay])
 async def list_products(
     page: int,
     db: session,
@@ -42,7 +46,26 @@ async def list_products(
     return products
 
 
-@router.post("/products")
+@router.get("/{name}", response_model=ProductDisplay)
+async def search_products_by_name(
+    name: str,
+    db: session,
+    user: User = Depends(get_current_user),
+):
+    product = await get_product_by_name(
+        session=db,
+        name=name,
+    )
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
+        )
+
+    return product
+
+
+@router.post("/")
 async def create_new_product(
     db: session,
     product_in: ProductCreate,
@@ -52,7 +75,7 @@ async def create_new_product(
     if product_exists:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User email already registered",
+            detail="Product already registered",
         )
 
     product = await create_product(
@@ -61,3 +84,32 @@ async def create_new_product(
     )
     if product:
         return {"message": f"Succesfully created product. ID:{product.id}"}
+
+
+@router.post("/cart")
+async def add_to_cart(
+    product_id: uuid.UUID,
+    quantity: int,
+    db: session,
+    user: User = Depends(get_current_user),
+):
+    product = await get_product_by_id(
+        session=db,
+        product_id=product_id,
+    )
+    cart = await check_for_cart_or_create(
+        session=db,
+        user=user,
+    )
+    cart_item = await create_cart_item(
+        session=db,
+        cart_id=cart.id,
+        product=product,
+        quantity=quantity,
+    )
+    return {"message": f"Added{product.name} to cart Succesfully"}
+
+
+
+@router.get("/cartitems")
+async def list_users_cart_items()

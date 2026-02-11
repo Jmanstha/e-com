@@ -1,7 +1,10 @@
+import uuid
+
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models.dbmodel import Product, User
+from app.models.dbmodel import Cart, CartItem, Product, User
 from app.schemas.schema import ProductCreate, UserCreate
 from app.utils.security import get_password_hash, verify_password
 
@@ -90,8 +93,13 @@ async def get_product_by_name(
 ) -> Product | None:
     statement = select(Product).where(Product.name == name)
     result = await session.execute(statement)
-    session_user = result.scalars().first()
-    return session_user
+    product = result.scalars().first()
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
+        )
+    return product
 
 
 async def get_products_paginated(
@@ -104,3 +112,88 @@ async def get_products_paginated(
     result = await session.execute(statement)
     result_scaled = result.scalars().all()
     return result_scaled
+
+
+async def create_cart(
+    *,
+    session: AsyncSession,
+    user: User,
+) -> Cart:
+    new_cart = Cart(user_id=user.id)
+    session.add(new_cart)
+    await session.commit()
+    await session.refresh(new_cart)
+    return new_cart
+
+
+async def check_for_cart_or_create(
+    *,
+    session: AsyncSession,
+    user: User,
+) -> Cart:
+    statement = select(Cart).where(Cart.user_id == user.id)
+    result = await session.execute(statement)
+    cart_exists = result.scalars().first()
+    if cart_exists:
+        return cart_exists
+
+    new_cart = await create_cart(
+        session=session,
+        user=user,
+    )
+    return new_cart
+
+
+async def create_cart_item(
+    *,
+    session: AsyncSession,
+    cart_id: uuid.UUID,
+    product: Product,
+    quantity: int,
+) -> CartItem:
+    statement = select(CartItem).where(
+        CartItem.cart_id == cart_id,
+        CartItem.product_id == product.id,
+    )
+    result = await session.execute(statement)
+    cart_item = result.scalars().first()
+
+    if cart_item:
+        cart_item.quantity += quantity
+    else:
+        cart_item = CartItem(
+            cart_id=cart_id,
+            product_id=product.id,
+            quantity=quantity,
+        )
+        session.add(cart_item)
+
+    await session.commit()
+    await session.refresh(cart_item)
+
+    return cart_item
+
+
+async def get_product_by_id(
+    *,
+    session: AsyncSession,
+    product_id: uuid.UUID,
+) -> Product:
+    statement = select(Product).where(Product.id == product_id)
+    result = await session.execute(statement)
+    product = result.scalars().first()
+
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
+        )
+
+    return product
+
+
+async def get_cartitems(
+    *,
+    session: AsyncSession,
+):
+    pass

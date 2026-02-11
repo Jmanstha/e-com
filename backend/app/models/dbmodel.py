@@ -71,3 +71,26 @@ class Cart(SQLModel, table=True):
         index=True,
         nullable=False,
     )
+    user_id: uuid.UUID = Field(
+        foreign_key="User.id",
+        primary_key=True,
+    )
+
+
+class CartItem(SQLModel, table=True):
+    __tablename__: Any = "CartItems"
+    id: uuid.UUID = Field(
+        default_factory=uuid.uuid4,
+        primary_key=True,
+        index=True,
+        nullable=False,
+    )
+    cart_id: uuid.UUID = Field(
+        foreign_key="Cart.id",
+        primary_key=True,
+    )
+    product_id: uuid.UUID = Field(
+        foreign_key="Product.id",
+        primary_key=True,
+    )
+    quantity: int

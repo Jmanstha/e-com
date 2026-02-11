@@ -42,3 +42,8 @@ class ProductDisplay(SQLModel):
     name: str
     price: int
     description: str
+
+
+class CartItemDisplay(SQLModel):
+    name: str
+    quantity: int
