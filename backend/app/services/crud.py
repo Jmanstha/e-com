@@ -1,11 +1,14 @@
 import uuid
+from typing import List
 
 from fastapi import HTTPException, status
+from sqlalchemy import cast
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
 from app.models.dbmodel import Cart, CartItem, Product, User
-from app.schemas.schema import ProductCreate, UserCreate
+from app.schemas.schema import CartItemDisplay, ProductCreate, UserCreate
 from app.utils.security import get_password_hash, verify_password
 
 
@@ -195,5 +198,49 @@ async def get_product_by_id(
 async def get_cartitems(
     *,
     session: AsyncSession,
+    user: User,
 ):
-    pass
+    # stmt = (
+    #     select(Product.name, CartItem.quantity)
+    #     .select_from(User)
+    #     .join(Cart, User.id == Cart.user_id)  # pyright: ignore
+    #     .join(CartItem, Cart.id == CartItem.cart_id)  # pyright: ignore
+    #     .join(Product, CartItem.product_id == Product.id)  # pyright: ignore
+    #     .where(User.id == user.id)
+    # )
+    # 2. Execute the query
+    # result = await session.execute(stmt)
+
+    stmt = select(Cart).where(Cart.user_id == user.id)
+    result = await session.execute(stmt)
+    cart = result.scalars().first()
+
+    if cart is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Cart not found",
+        )
+
+    stmt = select(CartItem).where(CartItem.cart_id == cart.id)
+    result = await session.execute(stmt)
+    cart_items = result.scalars().all()
+
+    cart_data = []
+    for cart_item in cart_items:
+        print(cart_item.id)
+        stmt = select(Product).where(Product.id == cart_item.product_id)
+        result = await session.execute(stmt)
+        product = result.scalars().first()
+        if product is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="LOLOLOLOLOL not found",
+            )
+        cart_data.append(
+            CartItemDisplay(
+                name=product.name,
+                quantity=cart_item.quantity,
+            )
+        )
+    # 3. Get all rows (each row will have .name and .quantity)
+    return cart_data

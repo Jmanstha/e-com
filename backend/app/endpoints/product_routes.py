@@ -4,15 +4,17 @@ from typing import Annotated, List
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
+from fastapi.exceptions import DependencyScopeError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_async_session
 from app.models.dbmodel import Product, User
-from app.schemas.schema import ProductCreate, ProductDisplay
+from app.schemas.schema import CartItemDisplay, ProductCreate, ProductDisplay
 from app.services.crud import (
     check_for_cart_or_create,
     create_cart_item,
     create_product,
+    get_cartitems,
     get_product_by_id,
     get_product_by_name,
     get_products_paginated,
@@ -44,6 +46,18 @@ async def list_products(
         offset=offset,
     )
     return products
+
+
+@router.get("/cartitems", response_model=List[CartItemDisplay])
+async def list_users_cart_items(
+    db: session,
+    user: User = Depends(get_current_user),
+):
+    result = await get_cartitems(
+        session=db,
+        user=user,
+    )
+    return result
 
 
 @router.get("/{name}", response_model=ProductDisplay)
@@ -108,8 +122,3 @@ async def add_to_cart(
         quantity=quantity,
     )
     return {"message": f"Added{product.name} to cart Succesfully"}
-
-
-
-@router.get("/cartitems")
-async def list_users_cart_items()

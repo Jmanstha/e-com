@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 from app.schemas.schema import UserBase
 
@@ -78,7 +78,7 @@ class Cart(SQLModel, table=True):
 
 
 class CartItem(SQLModel, table=True):
-    __tablename__: Any = "CartItems"
+    __tablename__: Any = "CartItem"
     id: uuid.UUID = Field(
         default_factory=uuid.uuid4,
         primary_key=True,
@@ -94,3 +94,4 @@ class CartItem(SQLModel, table=True):
         primary_key=True,
     )
     quantity: int
+    product: "Product" = Relationship()
