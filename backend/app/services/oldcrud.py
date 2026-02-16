@@ -256,3 +256,10 @@ async def get_cartitems(
 
     # SQLAlchemy Rows automatically map to your Pydantic 'CartItemDisplay'
     return cart_data
+
+
+async def create_order(
+    *,
+    session: AsyncSession,
+):
+    pass

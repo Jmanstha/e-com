@@ -45,8 +45,9 @@ class Order(SQLModel, table=True):
         nullable=False,
     )
     ordered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-    # thinking of making this the users and products link table cuz every user that is associated with the product is an order
+    user_id: uuid.UUID = Field(foreign_key="User.id", nullable=False)
+    total_price: int
+    status: str
 
 
 class OrderItem(SQLModel, table=True):
@@ -58,9 +59,16 @@ class OrderItem(SQLModel, table=True):
         index=True,
         nullable=False,
     )
-    product_id: uuid.UUID = Field(foreign_key="Product.id", primary_key=True)
-    user_id: uuid.UUID = Field(foreign_key="User.id", primary_key=True)
+    order_id: uuid.UUID = Field(
+        foreign_key="Order.id",
+        nullable=False,
+    )
+    product_id: uuid.UUID = Field(
+        foreign_key="Product.id",
+        nullable=False,
+    )
     quantity: int = Field(nullable=False)
+    price_at_purchase: int = Field(nullable=False)
 
 
 class Cart(SQLModel, table=True):
@@ -73,7 +81,7 @@ class Cart(SQLModel, table=True):
     )
     user_id: uuid.UUID = Field(
         foreign_key="User.id",
-        primary_key=True,
+        nullable=False,
     )
 
 
@@ -87,11 +95,10 @@ class CartItem(SQLModel, table=True):
     )
     cart_id: uuid.UUID = Field(
         foreign_key="Cart.id",
-        primary_key=True,
+        nullable=False,
     )
     product_id: uuid.UUID = Field(
         foreign_key="Product.id",
-        primary_key=True,
+        nullable=False,
     )
     quantity: int
-    product: "Product" = Relationship()

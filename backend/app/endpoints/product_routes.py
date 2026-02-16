@@ -3,46 +3,41 @@ import uuid
 from typing import Annotated, List
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
-from fastapi.exceptions import DependencyScopeError
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_async_session
-from app.models.dbmodel import Product, User
+from app.models.dbmodel import User
 from app.schemas.schema import CartItemDisplay, ProductCreate, ProductDisplay
-from app.services.crud import (
-    check_for_cart_or_create,
-    create_cart_item,
-    create_product,
-    get_cartitems,
-    get_product_by_id,
-    get_product_by_name,
-    get_products_paginated,
-)
+
+# Unified import from the new modular structure
+from app.services import crud
 from app.services.deps import get_current_active_admin, get_current_user
 
 router = APIRouter()
-
 load_dotenv()
 
-
-session = Annotated[AsyncSession, Depends(get_async_session)]
+# Dependency Alias
+session_dep = Annotated[AsyncSession, Depends(get_async_session)]
 
 
 @router.get("/", response_model=List[ProductDisplay])
 async def list_products(
     page: int,
-    db: session,
+    db: session_dep,
     user: User = Depends(get_current_user),
 ):
-    PRODUCT_LIMIT_PER_PAGE = os.getenv("PRODUCT_LIMIT_PER_PAGE")
-    if PRODUCT_LIMIT_PER_PAGE is None:
+    limit_str = os.getenv("PRODUCT_LIMIT_PER_PAGE")
+    if not limit_str:
         raise RuntimeError("PRODUCT_LIMIT_PER_PAGE env var not set")
 
-    offset = (page - 1) * int(PRODUCT_LIMIT_PER_PAGE)
-    products = await get_products_paginated(
+    limit = int(limit_str)
+    offset = (page - 1) * limit
+
+    # Accessing via crud module
+    products = await crud.get_products_paginated(
         session=db,
-        limit=int(PRODUCT_LIMIT_PER_PAGE),
+        limit=limit,
         offset=offset,
     )
     return products
@@ -50,75 +45,73 @@ async def list_products(
 
 @router.get("/cartitems", response_model=List[CartItemDisplay])
 async def list_users_cart_items(
-    db: session,
+    db: session_dep,
     user: User = Depends(get_current_user),
 ):
-    result = await get_cartitems(
-        session=db,
-        user=user,
-    )
-    return result
-
-
-@router.get("/{name}", response_model=ProductDisplay)
-async def search_products_by_name(
-    name: str,
-    db: session,
-    user: User = Depends(get_current_user),
-):
-    product = await get_product_by_name(
-        session=db,
-        name=name,
-    )
-    if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product not found",
-        )
-
-    return product
+    # This now calls the optimized join query in crud/cart.py
+    return await crud.get_cartitems(session=db, user=user)
 
 
 @router.post("/")
 async def create_new_product(
-    db: session,
+    db: session_dep,
     product_in: ProductCreate,
     userAdmin: User = Depends(get_current_active_admin),
 ):
-    product_exists = await get_product_by_name(session=db, name=product_in.name)
+    # Check if exists using modular crud
+    product_exists = await crud.get_product_by_name(session=db, name=product_in.name)
     if product_exists:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Product already registered",
         )
 
-    product = await create_product(
-        session=db,
-        product_create=product_in,
-    )
-    if product:
-        return {"message": f"Succesfully created product. ID:{product.id}"}
+    product = await crud.create_product(session=db, product_create=product_in)
+    return {"message": f"Successfully created product. Name:{product.name}"}
 
 
 @router.post("/cart")
 async def add_to_cart(
     product_id: uuid.UUID,
     quantity: int,
-    db: session,
+    db: session_dep,
     user: User = Depends(get_current_user),
 ):
-    product = await get_product_by_id(
-        session=db,
-        product_id=product_id,
-    )
-    cart = await check_for_cart_or_create(
-        session=db,
-        user=user,
-    )
-    cart_item = await create_cart_item(
+    product = await crud.get_product_by_id(session=db, product_id=product_id)
+    cart = await crud.check_for_cart_or_create(session=db, user=user)
+
+    await crud.create_cart_item(
         session=db,
         cart_id=cart.id,
         product=product,
         quantity=quantity,
     )
-    return {"message": f"Added{product.name} to cart Succesfully"}
+    return {"message": f"Added {product.name} to cart successfully"}
+
+
+@router.post("/order")
+async def order_items_in_cart(
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    # This will call the logic in crud/order.py
+    order = await crud.create_order(session=db, user=user)
+    return {"message": "Order placed successfully", "order_id": order.id}
+
+
+@router.get("/{name}", response_model=ProductDisplay)
+async def search_products_by_name(
+    name: str,
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    product = await crud.get_product_by_name(session=db, name=name)
+
+    # The 404 is actually handled inside your get_product_by_name,
+    # but keeping this for safety:
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
+        )
+    return product
