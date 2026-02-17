@@ -95,7 +95,10 @@ async def order_items_in_cart(
     user: User = Depends(get_current_user),
 ):
     # This will call the logic in crud/order.py
-    order = await crud.create_order(session=db, user=user)
+    order = await crud.create_order(
+        session=db,
+        user=user,
+    )
     return {"message": "Order placed successfully", "order_id": order.id}
 
 
