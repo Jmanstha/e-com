@@ -1,5 +1,12 @@
-from .cart import check_for_cart_or_create, create_cart, create_cart_item, get_cartitems
-from .order import create_order
+from .cart import (
+    check_for_cart_or_create,
+    clear_cart,
+    create_cart,
+    create_cart_item,
+    get_cartitems,
+    get_total_price,
+)
+from .order import create_order, create_order_items
 from .product import (
     create_product,
     get_product_by_id,

@@ -1,9 +1,12 @@
 import uuid
 
-from app.models.dbmodel import Cart, CartItem, Product, User
 from fastapi import HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from sqlmodel import delete, select
+
+from app.models.dbmodel import Cart, CartItem, Product, User
+from app.schemas.schema import DisplayTotalPrice
 
 
 async def create_cart(
@@ -127,3 +130,43 @@ async def get_cartitems(
 
     # SQLAlchemy Rows automatically map to your Pydantic 'CartItemDisplay'
     return cart_data
+
+
+async def get_total_price(
+    *,
+    session: AsyncSession,
+    user: User,
+) -> DisplayTotalPrice:
+    stmt = (
+        select(func.sum(Product.price * CartItem.quantity))
+        .join(CartItem, Product.id == CartItem.product_id)  # pyright: ignore
+        .join(Cart, CartItem.cart_id == Cart.id)  # pyright: ignore
+        .where(Cart.user_id == user.id)
+    )
+
+    result = await session.execute(stmt)
+    total = result.scalar() or 0
+
+    if total == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Cart is empty",
+        )
+
+    return DisplayTotalPrice(total_price=total)
+
+
+async def clear_cart(
+    *,
+    session: AsyncSession,
+    user: User,
+):
+    cart_stmt = select(Cart).where(Cart.user_id == user.id)
+    cart_res = await session.execute(cart_stmt)
+    cart = cart_res.scalars().first()
+
+    if cart:
+        delete_stmt = delete(CartItem).where(
+            CartItem.cart_id == cart.id  # pyright: ignore
+        )
+        await session.execute(delete_stmt)

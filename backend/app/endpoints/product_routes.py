@@ -8,7 +8,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_async_session
 from app.models.dbmodel import User
-from app.schemas.schema import CartItemDisplay, ProductCreate, ProductDisplay
+from app.schemas.schema import (
+    CartItemDisplay,
+    DisplayTotalPrice,
+    ProductCreate,
+    ProductDisplay,
+)
 
 # Unified import from the new modular structure
 from app.services import crud
@@ -50,6 +55,14 @@ async def list_users_cart_items(
 ):
     # This now calls the optimized join query in crud/cart.py
     return await crud.get_cartitems(session=db, user=user)
+
+
+@router.get("/cartprice", response_model=DisplayTotalPrice)
+async def list_users_total_cart_price(
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    return await crud.get_total_price(session=db, user=user)
 
 
 @router.post("/")
@@ -99,6 +112,18 @@ async def order_items_in_cart(
         session=db,
         user=user,
     )
+    await crud.create_order_items(
+        session=db,
+        user=user,
+        order_id=order.id,
+    )
+    await crud.clear_cart(
+        session=db,
+        user=user,
+    )
+    await db.commit()
+    await db.refresh(order)
+
     return {"message": "Order placed successfully", "order_id": order.id}
 
 

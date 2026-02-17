@@ -47,3 +47,7 @@ class ProductDisplay(SQLModel):
 class CartItemDisplay(SQLModel):
     name: str
     quantity: int
+
+
+class DisplayTotalPrice(SQLModel):
+    total_price: int
