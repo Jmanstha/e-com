@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
+from pydantic_core.core_schema import nullable_schema
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.schemas.schema import UserBase
@@ -33,6 +34,7 @@ class Product(SQLModel, table=True):
     name: str = Field(unique=True, index=True)
     price: int
     description: str
+    stock: int = Field(default=0, nullable=False)
 
 
 class Order(SQLModel, table=True):

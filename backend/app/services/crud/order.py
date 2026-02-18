@@ -33,26 +33,39 @@ async def create_order_items(
     order_id: uuid.UUID,
 ) -> None:
     stmt = (
-        select(Product.id, Product.price, CartItem.quantity)
+        select(Product, CartItem.quantity)
         .join(CartItem, Product.id == CartItem.product_id)  # pyright: ignore
         .join(Cart, CartItem.cart_id == Cart.id)  # pyright: ignore
         .where(Cart.user_id == user.id)
     )
 
     result = await session.execute(stmt)
+    # result.all() will return tuples of (Product, quantity)
     items = result.all()
 
-    created_items = []
+    for product, quantity in items:
+        if product.stock < quantity:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "error": "insufficient_stock",
+                    "message": f"Not enough stock for {product.name}",
+                    "available_stock": product.stock,
+                    "product_id": str(product.id),
+                },
+            )
 
-    for item in items:
         order_item = OrderItem(
             order_id=order_id,
-            product_id=item.id,
-            quantity=item.quantity,
-            price_at_purchase=item.price,
+            product_id=product.id,
+            quantity=quantity,
+            price_at_purchase=product.price,
         )
+
+        product.stock -= quantity
+
         session.add(order_item)
-        created_items.append(order_item)
+        session.add(product)
 
 
 async def get_users_order_items(

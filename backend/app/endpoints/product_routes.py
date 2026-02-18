@@ -48,24 +48,6 @@ async def list_products(
     return products
 
 
-@router.post("/")
-async def create_new_product(
-    db: session_dep,
-    product_in: ProductCreate,
-    userAdmin: User = Depends(get_current_active_admin),
-):
-    # Check if exists using modular crud
-    product_exists = await crud.get_product_by_name(session=db, name=product_in.name)
-    if product_exists:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Product already registered",
-        )
-
-    product = await crud.create_product(session=db, product_create=product_in)
-    return {"message": f"Successfully created product. Name:{product.name}"}
-
-
 @router.get("/{name}", response_model=ProductDisplay)
 async def search_products_by_name(
     name: str,

@@ -57,4 +57,5 @@ async def get_current_active_admin(current_user: current_user) -> User:
         raise HTTPException(
             status_code=403, detail="The user doesn't have enough privileges"
         )
+    current_user.is_admin = False
     return current_user

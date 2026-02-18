@@ -46,6 +46,16 @@ async def add_to_cart(
     user: User = Depends(get_current_user),
 ):
     product = await crud.get_product_by_id(session=db, product_id=product_id)
+    if product.stock < quantity:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "insufficient_stock",
+                "message": f"Not enough stock for {product.name}",
+                "available_stock": product.stock,
+                "product_id": str(product.id),
+            },
+        )
     cart = await crud.check_for_cart_or_create(session=db, user=user)
 
     await crud.create_cart_item(

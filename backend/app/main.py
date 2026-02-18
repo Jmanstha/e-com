@@ -3,7 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI
 
 from app.database import init_db
-from app.endpoints import auth_routes, cart_routes, order_routes, product_routes
+from app.endpoints import (
+    admin_routes,
+    auth_routes,
+    cart_routes,
+    order_routes,
+    product_routes,
+)
 from app.models.dbmodel import User
 from app.services.deps import get_current_user
 
@@ -20,6 +26,7 @@ app.include_router(auth_routes.router, prefix="/auth")
 app.include_router(product_routes.router, prefix="/products")
 app.include_router(cart_routes.router, prefix="/cart")
 app.include_router(order_routes.router, prefix="/order")
+app.include_router(admin_routes.router, prefix="/admin")
 
 
 @app.get("/")

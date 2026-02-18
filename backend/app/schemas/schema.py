@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
@@ -42,6 +43,7 @@ class ProductDisplay(SQLModel):
     name: str
     price: int
     description: str
+    stock: int
 
 
 class CartItemDisplay(SQLModel):
@@ -66,3 +68,10 @@ class OrderStatus(SQLModel):
 class CartItemUpdate(SQLModel):
     # We use Field to ensure the quantity is at least 0
     quantity: int = Field(..., ge=0, description="The new quantity for the item")
+
+
+class ProductUpdate(SQLModel):
+    name: str | None = None
+    price: int | None = None
+    description: str | None = None
+    stock: int | None = None
