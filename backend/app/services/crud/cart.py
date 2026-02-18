@@ -190,7 +190,40 @@ async def remove_cart_item(
     cart_item = result.scalar_one_or_none()
     if cart_item is None:
         raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND, detail="Item not found in cart"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found in cart"
         )
 
     await session.delete(cart_item)
+
+
+async def update_quantity(
+    *,
+    session: AsyncSession,
+    user: User,
+    product_id: uuid.UUID,
+    new_quantity: int,
+):
+    stmt = (
+        select(CartItem)
+        .join(Cart, CartItem.cart_id == Cart.id)  # pyright: ignore
+        .where(
+            Cart.user_id == user.id,
+            CartItem.product_id == product_id,
+        )
+    )
+    result = await session.execute(stmt)
+    cart_item = result.scalar_one_or_none()
+    if cart_item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found in cart"
+        )
+    cart_item.quantity = new_quantity
+
+    if new_quantity <= 0:
+        await session.delete(cart_item)
+        await session.commit()
+        return None
+
+    await session.commit()
+    await session.refresh(cart_item)
+    return cart_item

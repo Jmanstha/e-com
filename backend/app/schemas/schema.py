@@ -61,3 +61,8 @@ class OrderItemDisplay(SQLModel):
 
 class OrderStatus(SQLModel):
     status: str
+
+
+class CartItemUpdate(SQLModel):
+    # We use Field to ensure the quantity is at least 0
+    quantity: int = Field(..., ge=0, description="The new quantity for the item")

@@ -8,6 +8,7 @@ from app.database import get_async_session
 from app.models.dbmodel import User
 from app.schemas.schema import (
     CartItemDisplay,
+    CartItemUpdate,
     DisplayTotalPrice,
 )
 
@@ -68,3 +69,23 @@ async def remove_item_from_cart(
         product_id=product_id,
     )
     await db.commit()
+
+
+@router.patch("/item/{product_id}")
+async def update_cart_item_quantity(
+    product_id: uuid.UUID,
+    item_data: CartItemUpdate,
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    cart_item = await crud.update_quantity(
+        session=db,
+        user=user,
+        product_id=product_id,
+        new_quantity=item_data.quantity,
+    )
+    if cart_item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found in cart"
+        )
+    return {"message": f"Item quantity set to {cart_item.quantity}"}
