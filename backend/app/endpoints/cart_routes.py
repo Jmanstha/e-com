@@ -54,3 +54,17 @@ async def add_to_cart(
         quantity=quantity,
     )
     return {"message": f"Added {product.name} to cart successfully"}
+
+
+@router.delete("/item/{product_id}")
+async def remove_item_from_cart(
+    product_id: uuid.UUID,
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    await crud.remove_cart_item(
+        session=db,
+        user=user,
+        product_id=product_id,
+    )
+    await db.commit()

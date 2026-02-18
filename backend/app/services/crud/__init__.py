@@ -5,6 +5,7 @@ from .cart import (
     create_cart_item,
     get_cartitems,
     get_total_price,
+    remove_cart_item,
 )
 from .order import create_order, create_order_items, get_users_order_items
 from .product import (
