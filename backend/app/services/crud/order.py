@@ -53,3 +53,25 @@ async def create_order_items(
         )
         session.add(order_item)
         created_items.append(order_item)
+
+
+async def get_users_order_items(
+    *,
+    session: AsyncSession,
+    user: User,
+):
+    stmt = (
+        select(Product.name, OrderItem.quantity, Order.status)
+        .join(OrderItem, Product.id == OrderItem.product_id)  # pyright: ignore
+        .join(Order, OrderItem.order_id == Order.id)  # pyright: ignore
+        .where(Order.user_id == user.id)
+    )
+    result = await session.execute(stmt)
+    order_item = result.all()
+    if not order_item:
+        # Note: Usually an empty cart is just [], but here is your 404 logic:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found",
+        )
+    return order_item

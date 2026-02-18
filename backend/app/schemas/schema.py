@@ -51,3 +51,13 @@ class CartItemDisplay(SQLModel):
 
 class DisplayTotalPrice(SQLModel):
     total_price: int
+
+
+class OrderItemDisplay(SQLModel):
+    name: str
+    quantity: int
+    status: str
+
+
+class OrderStatus(SQLModel):
+    status: str

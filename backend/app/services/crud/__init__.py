@@ -6,7 +6,7 @@ from .cart import (
     get_cartitems,
     get_total_price,
 )
-from .order import create_order, create_order_items
+from .order import create_order, create_order_items, get_users_order_items
 from .product import (
     create_product,
     get_product_by_id,

@@ -48,23 +48,6 @@ async def list_products(
     return products
 
 
-@router.get("/cartitems", response_model=List[CartItemDisplay])
-async def list_users_cart_items(
-    db: session_dep,
-    user: User = Depends(get_current_user),
-):
-    # This now calls the optimized join query in crud/cart.py
-    return await crud.get_cartitems(session=db, user=user)
-
-
-@router.get("/cartprice", response_model=DisplayTotalPrice)
-async def list_users_total_cart_price(
-    db: session_dep,
-    user: User = Depends(get_current_user),
-):
-    return await crud.get_total_price(session=db, user=user)
-
-
 @router.post("/")
 async def create_new_product(
     db: session_dep,
@@ -81,50 +64,6 @@ async def create_new_product(
 
     product = await crud.create_product(session=db, product_create=product_in)
     return {"message": f"Successfully created product. Name:{product.name}"}
-
-
-@router.post("/cart")
-async def add_to_cart(
-    product_id: uuid.UUID,
-    quantity: int,
-    db: session_dep,
-    user: User = Depends(get_current_user),
-):
-    product = await crud.get_product_by_id(session=db, product_id=product_id)
-    cart = await crud.check_for_cart_or_create(session=db, user=user)
-
-    await crud.create_cart_item(
-        session=db,
-        cart_id=cart.id,
-        product=product,
-        quantity=quantity,
-    )
-    return {"message": f"Added {product.name} to cart successfully"}
-
-
-@router.post("/order")
-async def order_items_in_cart(
-    db: session_dep,
-    user: User = Depends(get_current_user),
-):
-    # This will call the logic in crud/order.py
-    order = await crud.create_order(
-        session=db,
-        user=user,
-    )
-    await crud.create_order_items(
-        session=db,
-        user=user,
-        order_id=order.id,
-    )
-    await crud.clear_cart(
-        session=db,
-        user=user,
-    )
-    await db.commit()
-    await db.refresh(order)
-
-    return {"message": "Order placed successfully", "order_id": order.id}
 
 
 @router.get("/{name}", response_model=ProductDisplay)

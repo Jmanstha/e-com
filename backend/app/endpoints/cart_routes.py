@@ -1,0 +1,56 @@
+import uuid
+from typing import Annotated, List
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_async_session
+from app.models.dbmodel import User
+from app.schemas.schema import (
+    CartItemDisplay,
+    DisplayTotalPrice,
+)
+
+# Unified import from the new modular structure
+from app.services import crud
+from app.services.deps import get_current_active_admin, get_current_user
+
+router = APIRouter()
+
+session_dep = Annotated[AsyncSession, Depends(get_async_session)]
+
+
+@router.get("/", response_model=List[CartItemDisplay])
+async def list_users_cart_items(
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    # This now calls the optimized join query in crud/cart.py
+    return await crud.get_cartitems(session=db, user=user)
+
+
+@router.get("/total", response_model=DisplayTotalPrice)
+async def list_users_total_cart_price(
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    return await crud.get_total_price(session=db, user=user)
+
+
+@router.post("/item")
+async def add_to_cart(
+    product_id: uuid.UUID,
+    quantity: int,
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    product = await crud.get_product_by_id(session=db, product_id=product_id)
+    cart = await crud.check_for_cart_or_create(session=db, user=user)
+
+    await crud.create_cart_item(
+        session=db,
+        cart_id=cart.id,
+        product=product,
+        quantity=quantity,
+    )
+    return {"message": f"Added {product.name} to cart successfully"}
