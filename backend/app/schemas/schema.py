@@ -1,4 +1,5 @@
 import uuid
+from enum import Enum
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
@@ -55,14 +56,18 @@ class DisplayTotalPrice(SQLModel):
     total_price: int
 
 
+class OrderStatus(str, Enum):
+    PENDING = "pending"  # Order created, but money hasn't moved
+    PAID = "paid"  # Money received
+    SHIPPED = "shipped"  # Package with the courier
+    DELIVERED = "delivered"
+    CANCELLED = "cancelled"
+
+
 class OrderItemDisplay(SQLModel):
     name: str
     quantity: int
-    status: str
-
-
-class OrderStatus(SQLModel):
-    status: str
+    status: OrderStatus
 
 
 class CartItemUpdate(SQLModel):

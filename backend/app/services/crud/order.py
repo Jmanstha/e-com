@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.models.dbmodel import Cart, CartItem, Order, OrderItem, Product, User
+from app.schemas.schema import OrderStatus
 from app.services import crud
 
 
@@ -17,7 +18,7 @@ async def create_order(
     order = Order(
         user_id=user.id,
         total_price=total_price.total_price,
-        status="Pending",
+        status=OrderStatus.PENDING,
     )
     if order.ordered_at and order.ordered_at.tzinfo:
         order.ordered_at = order.ordered_at.replace(tzinfo=None)

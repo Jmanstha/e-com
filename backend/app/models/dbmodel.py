@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 from typing import Any
 
 from pydantic_core.core_schema import nullable_schema
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Column, Field, Relationship, SQLModel, String
 
-from app.schemas.schema import UserBase
+from app.schemas.schema import OrderStatus, UserBase
 
 
 class User(UserBase, table=True):
@@ -49,7 +49,9 @@ class Order(SQLModel, table=True):
     ordered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     user_id: uuid.UUID = Field(foreign_key="User.id", nullable=False)
     total_price: int
-    status: str
+    status: OrderStatus = Field(
+        sa_column=Column(String, nullable=False, server_default="pending")
+    )
 
 
 class OrderItem(SQLModel, table=True):

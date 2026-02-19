@@ -1,3 +1,0 @@
-#1. resolved an import issue where i named one of my route files product/products
-and the lsp couldnt resolve the file which i still dont understand but
-product_routes worked just fine. probably name conflict with some other library.

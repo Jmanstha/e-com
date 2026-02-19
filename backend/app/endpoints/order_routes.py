@@ -25,22 +25,25 @@ async def order_items_in_cart(
     db: session_dep,
     user: User = Depends(get_current_user),
 ):
-    # This will call the logic in crud/order.py
-    order = await crud.create_order(
-        session=db,
-        user=user,
-    )
-    await crud.create_order_items(
-        session=db,
-        user=user,
-        order_id=order.id,
-    )
-    await crud.clear_cart(
-        session=db,
-        user=user,
-    )
-    await db.commit()
-    await db.refresh(order)
+    async with db.begin():
+        order = await crud.create_order(
+            session=db,
+            user=user,
+        )
+        # If any of these raise an HTTPException (like your stock check),
+        # the 'begin' block will automatically ROLLBACK the order created above.
+        await crud.create_order_items(
+            session=db,
+            user=user,
+            order_id=order.id,
+        )
+        await crud.clear_cart(
+            session=db,
+            user=user,
+        )
+        # We refresh INSIDE the transaction so the data is loaded
+        # before the session potentially resets.
+        await db.refresh(order)
 
     return {"message": "Order placed successfully", "order_id": order.id}
 
