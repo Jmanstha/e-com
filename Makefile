@@ -22,9 +22,8 @@ logs: ## Follow the logs
 ## --- Database & Migrations ---
 
 rev: ## Generate a new migration script. Usage: make rev m="migration_name"
-	$(COMPOSE_RUN) alembic revision --autogenerate -m "$(m)"
-	sudo chown -R $(shell id -u):$(shell id -g) backend/migrations/
-
+	docker compose exec -u root server alembic revision --autogenerate -m "$(m)"
+	sudo chown -R $(shell id -u):$(shell id -g) backend/migrations/versions/
 migrate: ## Apply all pending migrations
 	$(COMPOSE_RUN) alembic upgrade head
 
