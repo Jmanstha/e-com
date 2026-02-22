@@ -115,6 +115,18 @@ services:
       # How many times to fail before marking the container as "unhealthy"
       retries: 5
 
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/src       
+      - /src/node_modules      
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - server
 # Defines named volumes that are shared across the whole project
 volumes:
   # This matches the name used in the 'db' service above
