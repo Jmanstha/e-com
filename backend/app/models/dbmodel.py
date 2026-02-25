@@ -35,6 +35,7 @@ class Product(SQLModel, table=True):
     price: int
     description: str
     stock: int = Field(default=0, nullable=False)
+    category: str = Field(default="Home", nullable=True)
 
 
 class Order(SQLModel, table=True):

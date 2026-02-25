@@ -28,14 +28,13 @@ session_dep = Annotated[AsyncSession, Depends(get_async_session)]
 
 @router.get("/", response_model=List[ProductDisplay])
 async def list_products(
-    page: int,
     db: session_dep,
     user: User = Depends(get_current_user),
 ):
     limit_str = os.getenv("PRODUCT_LIMIT_PER_PAGE")
     if not limit_str:
         raise RuntimeError("PRODUCT_LIMIT_PER_PAGE env var not set")
-
+    page = 1
     limit = int(limit_str)
     offset = (page - 1) * limit
 

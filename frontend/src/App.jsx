@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 import { authService } from "./services/authService";
 
 const GlobalLogoutButton = () => {
@@ -32,6 +33,7 @@ function App() {
       <Routes>
         <Route path="/SignUp" element={<SignUp />} />
         <Route path="/Login" element={<Login />} />
+        <Route path="/" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );

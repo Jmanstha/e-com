@@ -19,14 +19,12 @@ const SignUp = () => {
     try {
       await authService.signup(formData);
       navigate("/Login");
-      // Later we will navigate to the Dashboard here
     } catch (err) {
       setError("Invalid username or password");
     }
   };
 
   return (
-    /* Tailwind classes are used in 'className' */
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <form
         onSubmit={handleSubmit}

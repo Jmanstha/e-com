@@ -37,6 +37,7 @@ class ProductCreate(SQLModel):
     name: str
     price: int
     description: str
+    category: str
 
 
 class ProductDisplay(SQLModel):
@@ -45,6 +46,7 @@ class ProductDisplay(SQLModel):
     price: int
     description: str
     stock: int
+    category: str
 
 
 class CartItemDisplay(SQLModel):
@@ -80,3 +82,4 @@ class ProductUpdate(SQLModel):
     price: int | None = None
     description: str | None = None
     stock: int | None = None
+    category: str | None = None
