@@ -14,7 +14,7 @@ const Login = () => {
 
     try {
       await authService.login(email, password);
-      navigate("/Dashboard");
+      navigate("/");
     } catch (err) {
       console.log(err.response.data);
       setError("Invalid username or password");

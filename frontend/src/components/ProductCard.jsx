@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart } from "lucide-react";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
+import { AddToCartPopup } from "./AddToCartPopup";
 
 export function ProductCard({ product }) {
   const [wishlisted, setWishlisted] = useState(false);
@@ -60,18 +60,7 @@ export function ProductCard({ product }) {
           <span className="text-lg font-bold text-stone-800">
             Rs.{product.price.toFixed(2)}
           </span>
-          <Button
-            size="sm"
-            disabled={!inStock}
-            className="text-xs h-8 px-3 rounded-lg"
-            style={{
-              backgroundColor: inStock ? "#c0694e" : "#e5d5c5",
-              color: inStock ? "white" : "#a89080",
-              border: "none",
-            }}
-          >
-            Add to cart
-          </Button>
+          <AddToCartPopup key={product.id} product={product} />
         </div>
       </CardContent>
     </Card>
