@@ -88,6 +88,26 @@ export default function Dashboard() {
       }
     }
   };
+  const handleClearCart = async () => {
+    try {
+      await cartService.clearCart();
+      const freshCart = await cartService.getCartItems();
+      setCartItems(freshCart);
+    } catch (err) {
+      console.error("Failed to clear cart", err);
+    }
+  };
+
+  const handleDeleteCartItem = async (cartItemId) => {
+    try {
+      await cartService.deleteCartItem(cartItemId);
+      const freshCart = await cartService.getCartItems();
+      setCartItems(freshCart);
+    } catch (err) {
+      console.error("Failed to delete cart item", err);
+    }
+  };
+
   const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
@@ -142,7 +162,12 @@ export default function Dashboard() {
 
           {/* CART */}
           <div className="flex items-center gap-2">
-            <CartPopup cartItems={cartItems} onUpdate={handleUpdateQuantity} />
+            <CartPopup
+              cartItems={cartItems}
+              onUpdate={handleUpdateQuantity}
+              onClear={handleClearCart}
+              onDelete={handleDeleteCartItem}
+            />
           </div>
         </div>
       </nav>

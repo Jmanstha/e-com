@@ -8,10 +8,10 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { ShoppingCart, Plus, Minus, X } from "lucide-react";
 import { cartService } from "@/services/cartService";
 
-export function CartPopup({ cartItems = [], onUpdate }) {
+export function CartPopup({ cartItems = [], onUpdate, onClear, onDelete }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -79,6 +79,17 @@ export function CartPopup({ cartItems = [], onUpdate }) {
                   >
                     <Plus size={14} strokeWidth={3} />
                   </Button>
+                  {/* Delete Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                    onClick={() => {
+                      onDelete(item.id);
+                    }}
+                  >
+                    <X size={18} />
+                  </Button>
                 </div>
               </div>
             ))
@@ -113,6 +124,16 @@ export function CartPopup({ cartItems = [], onUpdate }) {
             className="text-stone-400 hover:bg-stone-50"
           >
             Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              onClear();
+              setIsOpen(false);
+            }}
+            className="text-stone-800 hover:bg-stone-50"
+          >
+            Delete Cart
           </Button>
           <Button className="bg-[#c0694e] hover:bg-[#a0523d] text-white px-8 rounded-lg">
             Checkout

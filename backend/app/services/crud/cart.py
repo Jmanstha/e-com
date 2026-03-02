@@ -143,20 +143,21 @@ async def clear_cart(
         )
         await session.execute(delete_stmt)
 
+    if cart is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Cart not found"
+        )
+
 
 async def remove_cart_item(
     *,
     session: AsyncSession,
     user: User,
-    product_id: uuid.UUID,
+    cart_item_id: uuid.UUID,
 ):
-    stmt = (
-        select(CartItem)
-        .join(Cart, CartItem.cart_id == Cart.id)  # pyright: ignore
-        .where(
-            Cart.user_id == user.id,
-            CartItem.product_id == product_id,
-        )
+    stmt = select(CartItem).where(
+        Cart.user_id == user.id,
+        CartItem.id == cart_item_id,
     )
     result = await session.execute(stmt)
     cart_item = result.scalar_one_or_none()

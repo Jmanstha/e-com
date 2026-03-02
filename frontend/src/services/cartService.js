@@ -34,6 +34,27 @@ export const cartService = {
       throw error;
     }
   },
+
+  async clearCart() {
+    try {
+      const response = await api.delete("/cart/");
+      return response.data;
+    } catch (error) {
+      this.handleError(error, "clearing cart");
+      throw error;
+    }
+  },
+
+  async deleteCartItem(cartItemId) {
+    try {
+      const response = await api.delete(`/cart/item/${cartItemId}`);
+      return response.data;
+    } catch (error) {
+      this.handleError(error, "deleting cart item");
+      throw error;
+    }
+  },
+
   // A helper method to keep your logs clean
   handleError(error, action) {
     const message = error.response?.data?.message || error.message;
