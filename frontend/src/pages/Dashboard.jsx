@@ -16,15 +16,23 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      // 1. Always try to get products (Public)
       try {
-        const [productData, cartItemData] = await Promise.all([
-          productService.getAllProducts(),
-          cartService.getCartItems(),
-        ]);
+        const productData = await productService.getAllProducts();
         setProducts(productData);
-        setCartItems(cartItemData);
       } catch (err) {
-        console.error("Failed to fetch data", err);
+        console.error("Products failed", err);
+      }
+
+      // 2. Only try to get cart if there is a token
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        try {
+          const cartData = await cartService.getCartItems();
+          setCartItems(cartData);
+        } catch (err) {
+          console.error("Cart failed", err);
+        }
       }
     };
 
@@ -56,6 +64,30 @@ export default function Dashboard() {
     }
   };
 
+  const handleAddToCart = async (productId, quantity) => {
+    // 1. Check if the item is already in our cart state
+    const existingItem = cartItems.find(
+      (item) => item.product_id === productId,
+    );
+
+    if (existingItem) {
+      // If it exists, we reuse our Update logic!
+      handleUpdateQuantity(existingItem.id, quantity);
+    } else {
+      // 2. If it's NEW, we have two choices:
+      try {
+        // Step A: Tell backend to add it
+        await cartService.addToCart(productId, quantity);
+
+        // Step B: Fetch the fresh cart to get the new 'cart_item_id' from the DB
+        // We do this because we don't know the ID the database just generated yet
+        const freshCart = await cartService.getCartItems();
+        setCartItems(freshCart);
+      } catch (err) {
+        console.error("Failed to add new item", err);
+      }
+    }
+  };
   const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
@@ -150,7 +182,11 @@ export default function Dashboard() {
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {filtered.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                onUpdate={handleAddToCart}
+              />
             ))}
           </div>
         ) : (

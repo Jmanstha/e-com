@@ -5,7 +5,7 @@ import { Heart } from "lucide-react";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { AddToCartPopup } from "./AddToCartPopup";
 
-export function ProductCard({ product }) {
+export function ProductCard({ product, onUpdate }) {
   const [wishlisted, setWishlisted] = useState(false);
   const inStock = product.stock > 0;
 
@@ -60,7 +60,11 @@ export function ProductCard({ product }) {
           <span className="text-lg font-bold text-stone-800">
             Rs.{product.price.toFixed(2)}
           </span>
-          <AddToCartPopup key={product.id} product={product} />
+          <AddToCartPopup
+            key={product.id}
+            product={product}
+            onUpdate={onUpdate}
+          />
         </div>
       </CardContent>
     </Card>

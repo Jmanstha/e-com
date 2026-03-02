@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import delete, select
 
 from app.models.dbmodel import Cart, CartItem, Product, User
-from app.schemas.schema import DisplayTotalPrice
+from app.schemas.schema import CartItemDisplay, DisplayTotalPrice
 
 
 async def create_cart(
@@ -76,9 +76,8 @@ async def get_cartitems(
 ):
     stmt = (
         select(
-            CartItem.id,
+            CartItem,
             Product.name,
-            CartItem.quantity,
             Product.price,
         )
         .join(CartItem, Product.id == CartItem.product_id)  # pyright: ignore
@@ -91,14 +90,18 @@ async def get_cartitems(
 
     # Optional: If you strictly want that 404 when the cart is empty
     if not cart_data:
-        # Note: Usually an empty cart is just [], but here is your 404 logic:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Cart or items not found",
-        )
-
+        return []
     # SQLAlchemy Rows automatically map to your Pydantic 'CartItemDisplay'
-    return cart_data
+    return [
+        CartItemDisplay(
+            id=r.CartItem.id,
+            quantity=r.CartItem.quantity,
+            name=r.name,
+            price=r.price,
+            product_id=r.CartItem.product_id,
+        )
+        for r in cart_data
+    ]
 
 
 async def get_total_price(

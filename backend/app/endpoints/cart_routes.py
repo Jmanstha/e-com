@@ -39,7 +39,7 @@ async def list_users_total_cart_price(
     return await crud.get_total_price(session=db, user=user)
 
 
-@router.post("/item")
+@router.post("/item/{product_id}")
 async def add_to_cart(
     product_id: uuid.UUID,
     quantity: int,
