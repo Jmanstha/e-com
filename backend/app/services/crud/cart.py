@@ -74,44 +74,13 @@ async def get_cartitems(
     session: AsyncSession,
     user: User,
 ):
-    # MY ATTEMPT
-    # stmt = select(Cart).where(Cart.user_id == user.id)
-    # result = await session.execute(stmt)
-    # cart = result.scalars().first()
-    #
-    # if cart is None:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND,
-    #         detail="Cart not found",
-    #     )
-    #
-    # stmt = select(CartItem).where(CartItem.cart_id == cart.id)
-    # result = await session.execute(stmt)
-    # cart_items = result.scalars().all()
-    #
-    # cart_data = []
-    # for cart_item in cart_items:
-    #     print(cart_item.id)
-    #     stmt = select(Product).where(Product.id == cart_item.product_id)
-    #     result = await session.execute(stmt)
-    #     product = result.scalars().first()
-    #     if product is None:
-    #         raise HTTPException(
-    #             status_code=status.HTTP_404_NOT_FOUND,
-    #             detail="LOLOLOLOLOL not found",
-    #         )
-    #     cart_data.append(
-    #         CartItemDisplay(
-    #             name=product.name,
-    #             quantity=cart_item.quantity,
-    #         )
-    #     )
-    # return cart_data
-
-    # OPTIMIZED
-    # Dont need an instance of product cuz its linked via a foreign key, joins create this super row form the given contraints and the select only picks out the data that i actually need
     stmt = (
-        select(Product.name, CartItem.quantity)
+        select(
+            CartItem.id,
+            Product.name,
+            CartItem.quantity,
+            Product.price,
+        )
         .join(CartItem, Product.id == CartItem.product_id)  # pyright: ignore
         .join(Cart, CartItem.cart_id == Cart.id)  # pyright: ignore
         .where(Cart.user_id == user.id)

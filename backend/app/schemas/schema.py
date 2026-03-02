@@ -50,8 +50,10 @@ class ProductDisplay(SQLModel):
 
 
 class CartItemDisplay(SQLModel):
+    id: uuid.UUID
     name: str
     quantity: int
+    price: int
 
 
 class DisplayTotalPrice(SQLModel):

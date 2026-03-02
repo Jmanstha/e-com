@@ -29,7 +29,6 @@ session_dep = Annotated[AsyncSession, Depends(get_async_session)]
 @router.get("/", response_model=List[ProductDisplay])
 async def list_products(
     db: session_dep,
-    user: User = Depends(get_current_user),
 ):
     limit_str = os.getenv("PRODUCT_LIMIT_PER_PAGE")
     if not limit_str:
@@ -47,19 +46,18 @@ async def list_products(
     return products
 
 
-@router.get("/{name}", response_model=ProductDisplay)
-async def search_products_by_name(
+@router.get("/update_stock")
+async def update_stock(
     name: str,
+    stock: int,
     db: session_dep,
-    user: User = Depends(get_current_user),
 ):
-    product = await crud.get_product_by_name(session=db, name=name)
-
-    # The 404 is actually handled inside your get_product_by_name,
-    # but keeping this for safety:
+    product = await crud.update_product_stock(session=db, name=name, stock=stock)
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
         )
-    return product
+    return {
+        "message": f"Succesfullly updated {product.name}s stock value to {product.stock}"
+    }

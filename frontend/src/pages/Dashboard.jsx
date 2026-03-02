@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { ShoppingBag, Search, ShoppingCart } from "lucide-react";
+import { ShoppingBag, Search } from "lucide-react";
 import { productService } from "@/services/productService";
+import { cartService } from "@/services/cartService";
 import { ProductCard } from "@/components/ProductCard";
+import { CartPopup } from "@/components/CartPopup";
 
 const CATEGORIES = ["All", "Bags", "Accessories", "Clothing", "Favourite"];
 
@@ -10,21 +12,49 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
 
-  const fetchData = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productData, cartItemData] = await Promise.all([
+          productService.getAllProducts(),
+          cartService.getCartItems(),
+        ]);
+        setProducts(productData);
+        setCartItems(cartItemData);
+      } catch (err) {
+        console.error("Failed to fetch data", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleUpdateQuantity = async (cartItemId, amount) => {
+    // change only in ui (optimistic but lag free)
+    setCartItems(
+      (
+        prev, //prev is everything in the state before
+      ) =>
+        prev.map((item) => {
+          // map will create new array and iterate over every item
+          if (item.id === cartItemId) {
+            // if current item is one user changed then
+            const newQuantity = item.quantity + amount; // change amount
+
+            // Prevent quantity from going below 1
+            return { ...item, quantity: Math.max(1, newQuantity) }; // return the current item in the state and continue operating on next item
+          }
+          return item; // if no match in state item and changed cartItem then ofcourse return item unchanged
+        }),
+    );
     try {
-      const data = await productService.getAllProducts();
-      setProducts(data);
+      await cartService.updateCartItemQuantityByOne(cartItemId, amount);
     } catch (err) {
-      console.error("Failed to fetch Products", err);
+      console.error("Sync failed, reverting...");
     }
   };
-  useEffect(() => {
-    const fetchProductData = async () => {
-      await fetchData();
-    };
-    fetchProductData();
-  }, []);
 
   const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
@@ -77,28 +107,11 @@ export default function Dashboard() {
               style={{ fontFamily: "Georgia, serif" }}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm hover:shadow-lg transition-all duration-300"
-              style={{ backgroundColor: "#c0694e" }}
-            >
-              <ShoppingCart size={22} className="text-white" />
-            </div>
-          </div>
 
-          {/* {/* Actions */}
-          {/* <Button */}
-          {/*   size="sm" */}
-          {/*   className="flex items-center gap-2 text-sm rounded-lg" */}
-          {/*   style={{ */}
-          {/*     backgroundColor: "#c0694e", */}
-          {/*     color: "white", */}
-          {/*     border: "none", */}
-          {/*   }} */}
-          {/* > */}
-          {/*   <Plus size={15} /> */}
-          {/*   Add Product */}
-          {/* </Button> */}
+          {/* CART */}
+          <div className="flex items-center gap-2">
+            <CartPopup cartItems={cartItems} onUpdate={handleUpdateQuantity} />
+          </div>
         </div>
       </nav>
 

@@ -14,5 +14,6 @@ from .product import (
     get_product_by_id,
     get_product_by_name,
     get_products_paginated,
+    update_product_stock,
 )
 from .user import authenticate, create_user, get_user_by_email

@@ -62,3 +62,27 @@ async def get_product_by_id(
         )
 
     return product
+
+
+async def update_product_stock(
+    *,
+    session: AsyncSession,
+    name: str,
+    stock: int,
+) -> Product | None:
+    statement = select(Product).where(Product.name == name)
+    result = await session.execute(statement)
+    product = result.scalars().first()
+
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
+        )
+
+    product.stock = stock
+
+    session.add(product)
+    await session.commit()
+    await session.refresh(product)
+    return product
