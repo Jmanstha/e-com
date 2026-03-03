@@ -5,6 +5,8 @@ import { productService } from "@/services/productService";
 import { cartService } from "@/services/cartService";
 import { ProductCard } from "@/components/ProductCard";
 import { CartPopup } from "@/components/CartPopup";
+import { toast } from "sonner";
+import { Footer } from "@/components/Footer";
 
 const CATEGORIES = ["All", "Bags", "Accessories", "Clothing", "Favourite"];
 
@@ -64,37 +66,46 @@ export default function Dashboard() {
     }
   };
 
-  const handleAddToCart = async (productId, quantity) => {
-    // 1. Check if the item is already in our cart state
+  const handleAddToCart = async (productId, quantity, productName = "Item") => {
     const existingItem = cartItems.find(
       (item) => item.product_id === productId,
     );
 
     if (existingItem) {
-      // If it exists, we reuse our Update logic!
-      handleUpdateQuantity(existingItem.id, quantity);
-    } else {
-      // 2. If it's NEW, we have two choices:
       try {
-        // Step A: Tell backend to add it
+        await handleUpdateQuantity(existingItem.id, quantity);
+        toast.success(`Updated ${productName} quantity`);
+      } catch (err) {
+        toast.error(`Failed to update ${productName}`);
+      }
+    } else {
+      try {
         await cartService.addToCart(productId, quantity);
-
-        // Step B: Fetch the fresh cart to get the new 'cart_item_id' from the DB
-        // We do this because we don't know the ID the database just generated yet
         const freshCart = await cartService.getCartItems();
         setCartItems(freshCart);
+
+        toast.success(`Added ${productName} to cart`, {
+          description: `${quantity} unit(s) added successfully.`,
+        });
       } catch (err) {
         console.error("Failed to add new item", err);
+        toast.error("Failed to add item to cart");
       }
     }
   };
+
   const handleClearCart = async () => {
+    // You might want to ask for confirmation before calling this!
     try {
       await cartService.clearCart();
-      const freshCart = await cartService.getCartItems();
-      setCartItems(freshCart);
+      setCartItems([]); // Optimization: just set to empty array instead of fetching
+
+      toast.info("Cart cleared", {
+        description: "All items have been removed from your shopping bag.",
+      });
     } catch (err) {
       console.error("Failed to clear cart", err);
+      toast.error("Could not clear the cart. Please try again.");
     }
   };
 
@@ -221,6 +232,7 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

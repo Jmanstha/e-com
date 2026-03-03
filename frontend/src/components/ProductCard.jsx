@@ -14,21 +14,25 @@ export function ProductCard({ product, onUpdate }) {
       {/* Image area */}
       <div className="relative">
         <PlaceholderImage />
-        <button
-          onClick={() => setWishlisted(!wishlisted)}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-transform"
-        >
-          <Heart
-            size={15}
-            className={
-              wishlisted ? "fill-terracotta text-terracotta" : "text-stone-400"
-            }
-            style={{
-              color: wishlisted ? "#c0694e" : undefined,
-              fill: wishlisted ? "#c0694e" : "none",
-            }}
-          />
-        </button>
+
+        {/* Possible wishlist feature */}
+
+        {/* <button */}
+        {/*   onClick={() => setWishlisted(!wishlisted)} */}
+        {/*   className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-transform" */}
+        {/* > */}
+        {/*   <Heart */}
+        {/*     size={15} */}
+        {/*     className={ */}
+        {/*       wishlisted ? "fill-terracotta text-terracotta" : "text-stone-400" */}
+        {/*     } */}
+        {/*     style={{ */}
+        {/*       color: wishlisted ? "#c0694e" : undefined, */}
+        {/*       fill: wishlisted ? "#c0694e" : "none", */}
+        {/*     }} */}
+        {/*   /> */}
+        {/* </button> */}
+
         <Badge
           className="absolute top-3 left-3 text-xs font-medium"
           style={{

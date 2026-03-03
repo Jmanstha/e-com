@@ -3,6 +3,7 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import { authService } from "./services/authService";
+import { Toaster } from "sonner";
 
 const GlobalLogoutButton = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const GlobalLogoutButton = () => {
 
   const handleLogout = () => {
     authService.logout();
-    navigate("/");
+    navigate("/Login");
   };
 
   return (
@@ -29,6 +30,7 @@ const GlobalLogoutButton = () => {
 function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-center" richColors closeButton />
       <GlobalLogoutButton />
       <Routes>
         <Route path="/SignUp" element={<SignUp />} />
