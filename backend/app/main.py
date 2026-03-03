@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import init_db
+from app.database import check_db_connection
 from app.endpoints import (
     admin_routes,
     auth_routes,
@@ -17,7 +17,8 @@ from app.services.deps import get_current_user
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
+    # await init_db()
+    await check_db_connection()
     yield
 
 

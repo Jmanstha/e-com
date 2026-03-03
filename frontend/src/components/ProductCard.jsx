@@ -13,7 +13,17 @@ export function ProductCard({ product, onUpdate }) {
     <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-white rounded-xl">
       {/* Image area */}
       <div className="relative">
-        <PlaceholderImage />
+        {product.image_url ? (
+          <div className="aspect-square w-full bg-stone-100 overflow-hidden relative group-hover:opacity-95 transition-opacity">
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        ) : (
+          <PlaceholderImage />
+        )}
 
         {/* Possible wishlist feature */}
 

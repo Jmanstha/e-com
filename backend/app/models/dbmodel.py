@@ -36,6 +36,7 @@ class Product(SQLModel, table=True):
     description: str
     stock: int = Field(default=0, nullable=False)
     category: str = Field(default="Home", nullable=True)
+    image_url: str = Field(default=" ", nullable=True)
 
 
 class Order(SQLModel, table=True):

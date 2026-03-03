@@ -27,6 +27,8 @@ rev: ## Generate a new migration script. Usage: make rev m="migration_name"
 migrate: ## Apply all pending migrations
 	$(COMPOSE_RUN) alembic upgrade head
 
+stamp-head:
+	docker compose exec server alembic stamp head
 downgrade: ## Rollback the last migration
 	$(COMPOSE_RUN) alembic downgrade -1
 

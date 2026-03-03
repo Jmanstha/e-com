@@ -47,6 +47,7 @@ class ProductDisplay(SQLModel):
     description: str
     stock: int
     category: str
+    image_url: str | None
 
 
 class CartItemDisplay(SQLModel):
@@ -86,3 +87,4 @@ class ProductUpdate(SQLModel):
     description: str | None = None
     stock: int | None = None
     category: str | None = None
+    image_url: str | None = None
