@@ -109,7 +109,7 @@ const Login = () => {
       <p className="mt-5 text-sm text-stone-500">
         Don't have an account?{" "}
         <Link
-          to="/SignUp"
+          to="/signup"
           style={{ color: "#c0694e" }}
           className="font-medium hover:underline"
         >

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.models.dbmodel import Cart, CartItem, Order, OrderItem, Product, User
-from app.schemas.schema import OrderStatus
+from app.schemas.schema import OrderItemDisplay, OrderStatus
 from app.services import crud
 
 
@@ -38,6 +38,7 @@ async def create_order_items(
         .join(CartItem, Product.id == CartItem.product_id)  # pyright: ignore
         .join(Cart, CartItem.cart_id == Cart.id)  # pyright: ignore
         .where(Cart.user_id == user.id)
+        .with_for_update()  # eliminated race conditions by locking the row
     )
 
     result = await session.execute(stmt)
@@ -75,7 +76,7 @@ async def get_users_order_items(
     user: User,
 ):
     stmt = (
-        select(Product.name, OrderItem.quantity, Order.status)
+        select(Product.name, OrderItem, Order)
         .join(OrderItem, Product.id == OrderItem.product_id)  # pyright: ignore
         .join(Order, OrderItem.order_id == Order.id)  # pyright: ignore
         .where(Order.user_id == user.id)
@@ -83,9 +84,14 @@ async def get_users_order_items(
     result = await session.execute(stmt)
     order_item = result.all()
     if not order_item:
-        # Note: Usually an empty cart is just [], but here is your 404 logic:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Order not found",
+        return []
+    return [
+        OrderItemDisplay(
+            id=r.OrderItem.id,
+            name=r.name,
+            quantity=r.OrderItem.quantity,
+            status=r.Order.status,
+            date=r.Order.ordered_at,
         )
-    return order_item
+        for r in order_item
+    ]

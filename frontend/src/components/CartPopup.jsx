@@ -11,7 +11,13 @@ import {
 import { ShoppingCart, Plus, Minus, X } from "lucide-react";
 import { cartService } from "@/services/cartService";
 
-export function CartPopup({ cartItems = [], onUpdate, onClear, onDelete }) {
+export function CartPopup({
+  cartItems = [],
+  onUpdate,
+  onClear,
+  onDelete,
+  onCheckout,
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -135,7 +141,13 @@ export function CartPopup({ cartItems = [], onUpdate, onClear, onDelete }) {
           >
             Delete Cart
           </Button>
-          <Button className="bg-[#c0694e] hover:bg-[#a0523d] text-white px-8 rounded-lg">
+          <Button
+            className="bg-[#c0694e] hover:bg-[#a0523d] text-white px-8 rounded-lg"
+            onClick={() => {
+              onCheckout();
+              setIsOpen(false);
+            }}
+          >
             Checkout
           </Button>
         </DialogFooter>

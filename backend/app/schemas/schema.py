@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -71,9 +72,11 @@ class OrderStatus(str, Enum):
 
 
 class OrderItemDisplay(SQLModel):
+    id: uuid.UUID
     name: str
     quantity: int
     status: OrderStatus
+    date: datetime
 
 
 class CartItemUpdate(SQLModel):

@@ -25,30 +25,37 @@ async def order_items_in_cart(
     db: session_dep,
     user: User = Depends(get_current_user),
 ):
-    async with db.begin():
-        order = await crud.create_order(
-            session=db,
-            user=user,
-        )
-        # If any of these raise an HTTPException (like your stock check),
-        # the 'begin' block will automatically ROLLBACK the order created above.
-        await crud.create_order_items(
-            session=db,
-            user=user,
-            order_id=order.id,
-        )
-        await crud.clear_cart(
-            session=db,
-            user=user,
-        )
-        # We refresh INSIDE the transaction so the data is loaded
-        # before the session potentially resets.
+    try:
+        # Use begin_nested() instead of begin()
+        # because i already use a .being() during my db initialization
+        async with db.begin_nested():
+            order = await crud.create_order(
+                session=db,
+                user=user,
+            )
+            await crud.create_order_items(
+                session=db,
+                user=user,
+                order_id=order.id,
+            )
+            await crud.clear_cart(
+                session=db,
+                user=user,
+            )
+
+        # The nested transaction commits to the main transaction here
+        await db.commit()
         await db.refresh(order)
+        return {"message": "Order placed successfully", "order_id": order.id}
 
-    return {"message": "Order placed successfully", "order_id": order.id}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        await db.rollback()  # Ensure rollback on actual crashes
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/orders", response_model=list[OrderItemDisplay])
+@router.get("/", response_model=list[OrderItemDisplay])
 async def list_orders(
     db: session_dep,
     user: User = Depends(get_current_user),

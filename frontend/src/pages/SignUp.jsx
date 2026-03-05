@@ -145,7 +145,7 @@ const SignUp = () => {
       <p className="mt-5 text-sm text-stone-500">
         Already have an account?{" "}
         <Link
-          to="/Login"
+          to="/login"
           style={{ color: "#c0694e" }}
           className="font-medium hover:underline"
         >
