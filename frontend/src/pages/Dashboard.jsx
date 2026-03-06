@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { productService } from "@/services/productService";
 import { cartService } from "@/services/cartService";
 import { orderService } from "@/services/orderService";
-import { ProductCard } from "@/components/ProductCard";
+import ProductCard from "@/components/ProductCard";
 import { toast } from "sonner";
-import { Footer } from "@/components/Footer";
-import { Navbar } from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 const CATEGORIES = ["All", "Bags", "Accessories", "Clothing", "Favourite"];
 

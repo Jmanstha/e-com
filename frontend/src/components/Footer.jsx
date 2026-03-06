@@ -8,7 +8,7 @@ import {
   MapPin,
 } from "lucide-react";
 
-export function Footer() {
+export default function Footer() {
   return (
     <footer
       className="mt-20 border-t"

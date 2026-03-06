@@ -1,9 +1,10 @@
 import { Input } from "@/components/ui/input";
-import { ShoppingBag, Search } from "lucide-react";
+import { Search, ShoppingBag } from "lucide-react";
 import { CartPopup } from "@/components/CartPopup";
-import { ProfileDropdown } from "@/components/ProfileDropdown";
+import ProfileDropdown from "./ProfileDropdown";
+import LogoIcon from "./LogoIcon";
 
-export function Navbar({
+export default function Navbar({
   cartItems,
   search,
   setSearch,
@@ -22,6 +23,7 @@ export function Navbar({
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
+        {/* <LogoIcon /> */}
         <div className="flex items-center gap-2">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center"
@@ -29,6 +31,7 @@ export function Navbar({
           >
             <ShoppingBag size={16} className="text-white" />
           </div>
+
           <span
             className="text-xl font-bold tracking-tight"
             style={{ color: "#3d2b1f" }}
@@ -36,7 +39,6 @@ export function Navbar({
             Yarnly
           </span>
         </div>
-
         {/* Search */}
         <div className="relative w-72 hidden md:block">
           <Search

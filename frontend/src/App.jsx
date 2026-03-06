@@ -4,6 +4,9 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import { Toaster } from "sonner";
 import OrderHistory from "./pages/OrderHistory";
+import ProfilePage from "./pages/ProfilePage";
+import LogoIcon from "./components/LogoIcon";
+import { Layout } from "./components/Layout";
 
 import { authService } from "./services/authService";
 // const GlobalLogoutButton = () => {
@@ -28,16 +31,23 @@ import { authService } from "./services/authService";
 //   );
 // };
 
+const GlobalLogoIcon = () => {
+  return <LogoIcon />;
+};
 function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-center" richColors closeButton />
       {/* <GlobalLogoutButton /> */}
+      <GlobalLogoIcon />
       <Routes>
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/orders" element={<OrderHistory />} />
+        <Route element={<Layout />}>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/orders" element={<OrderHistory />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

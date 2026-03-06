@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { orderService } from "@/services/orderService";
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 
 // TO DO
 // STATUS IS CHECKED AS STRING BUT I RETURN ENUMS. nvm it works as enums

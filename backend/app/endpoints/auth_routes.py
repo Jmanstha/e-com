@@ -8,10 +8,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_async_session
-from app.schemas.schema import Token, UserCreate, UserResponse
+from app.models.dbmodel import User
+from app.schemas.schema import Token, UserBase, UserCreate, UserResponse
 
 # Modularized CRUD import
 from app.services import crud
+from app.services.deps import get_current_user
 from app.utils.security import create_access_token
 
 router = APIRouter()
@@ -71,3 +73,8 @@ async def login(
         access_token=token_str,
         expires_in=int(expire_minutes),
     )
+
+
+@router.get("/", response_model=UserBase)
+async def get_user_detail(user: User = Depends(get_current_user)):
+    return user

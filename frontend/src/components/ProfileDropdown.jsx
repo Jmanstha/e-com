@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
 
-export function ProfileDropdown() {
+export default function ProfileDropdown() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -28,10 +28,13 @@ export function ProfileDropdown() {
         align="end"
         className="w-48 p-1 bg-white border-stone-200 shadow-xl rounded-lg mt-2"
       >
-        <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 cursor-pointer hover:bg-stone-50 rounded-md">
-          <User size={14} />
-          <span>Profile</span>
-        </DropdownMenuItem>
+        <Link to="/profile">
+          <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 cursor-pointer hover:bg-stone-50 rounded-md">
+            <User size={14} />
+            <span>Profile</span>
+          </DropdownMenuItem>
+        </Link>
+
         <Link to="/orders">
           <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 cursor-pointer hover:bg-stone-50 rounded-md">
             <Package size={14} />

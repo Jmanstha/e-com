@@ -5,7 +5,7 @@ import { Heart } from "lucide-react";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { AddToCartPopup } from "./AddToCartPopup";
 
-export function ProductCard({ product, onUpdate }) {
+export default function ProductCard({ product, onUpdate }) {
   const [wishlisted, setWishlisted] = useState(false);
   const inStock = product.stock > 0;
 
