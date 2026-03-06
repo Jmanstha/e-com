@@ -6,39 +6,24 @@ import ProductCard from "@/components/ProductCard";
 import { toast } from "sonner";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { useStore } from "zustand";
 
 const CATEGORIES = ["All", "Bags", "Accessories", "Clothing", "Favourite"];
 
 export default function Dashboard() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [products, setProducts] = useState([]);
+  // const [products, setProducts] = useState([]);
+  const products = useStore((state) => state.products);
   const [cartItems, setCartItems] = useState([]);
 
+  const fetchCart = useStore((state) => state.fetchCart);
+  const fetchProducts = useStore((state) => state.fetchProducts);
+
   useEffect(() => {
-    const fetchData = async () => {
-      // 1. Always try to get products (Public)
-      try {
-        const productData = await productService.getAllProducts();
-        setProducts(productData);
-      } catch (err) {
-        console.error("Products failed", err);
-      }
-
-      // 2. Only try to get cart if there is a token
-      const token = localStorage.getItem("access_token");
-      if (token) {
-        try {
-          const cartData = await cartService.getCartItems();
-          setCartItems(cartData);
-        } catch (err) {
-          console.error("Cart failed", err);
-        }
-      }
-    };
-
-    fetchData();
-  }, []);
+    fetchProducts();
+    fetchCart();
+  }, [fetchCart, fetchProducts]);
 
   const handleUpdateQuantity = async (cartItemId, amount) => {
     // change only in ui (optimistic but lag free)
