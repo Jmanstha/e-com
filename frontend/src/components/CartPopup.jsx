@@ -9,16 +9,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ShoppingCart, Plus, Minus, X } from "lucide-react";
-import { cartService } from "@/services/cartService";
+import { useStore } from "@/store/useStore";
 
-export function CartPopup({
-  cartItems = [],
-  onUpdate,
-  onClear,
-  onDelete,
-  onCheckout,
-}) {
+export function CartPopup() {
   const [isOpen, setIsOpen] = useState(false);
+  const handleUpdateQuantity = useStore((state) => state.handleUpdateQuantity);
+  const cartItems = useStore((state) => state.cartItems) || [];
+  const handleClearCart = useStore((state) => state.handleClearCart);
+  const handleDeleteCartItem = useStore((state) => state.handleDeleteCartItem);
+  const handleCheckout = useStore((state) => state.handleCheckout);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -47,58 +46,60 @@ export function CartPopup({
 
         <div className="py-2 max-h-[60vh] overflow-y-auto space-y-3">
           {cartItems.length > 0 ? (
-            cartItems.map((item, index) => (
-              <div
-                key={item.id || index}
-                className="flex items-center justify-between bg-stone-50 p-4 rounded-xl border border-stone-100"
-              >
-                {/* Product Name & Info */}
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-stone-800">
-                    {item.name}
-                  </span>
-                  <span className="text-[10px] text-stone-400 uppercase tracking-wider">
-                    Rs.{item.price?.toFixed(2)}
-                  </span>
+            cartItems
+              .filter((item) => item !== undefined && item !== null)
+              .map((item, index) => (
+                <div
+                  key={item.id || index}
+                  className="flex items-center justify-between bg-stone-50 p-4 rounded-xl border border-stone-100"
+                >
+                  {/* Product Name & Info */}
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-stone-800">
+                      {item.name}
+                    </span>
+                    <span className="text-[10px] text-stone-400 uppercase tracking-wider">
+                      Rs.{item.price?.toFixed(2)}
+                    </span>
+                  </div>
+
+                  {/* Quantity Controls */}
+                  <div className="flex items-center gap-3 bg-white border border-stone-200 rounded-lg p-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-stone-500 hover:text-[#c0694e]"
+                      onClick={() => handleUpdateQuantity(item.id, -1)}
+                    >
+                      <Minus size={14} strokeWidth={3} />
+                    </Button>
+
+                    <span className="text-sm font-bold w-4 text-center text-stone-700">
+                      {item.quantity}
+                    </span>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-stone-500 hover:text-[#c0694e]"
+                      onClick={() => handleUpdateQuantity(item.id, 1)}
+                    >
+                      <Plus size={14} strokeWidth={3} />
+                    </Button>
+                    {/* Delete Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      onClick={() => {
+                        handleDeleteCartItem(item.id);
+                      }}
+                    >
+                      <X size={18} />
+                    </Button>
+                  </div>
                 </div>
-
-                {/* Quantity Controls */}
-                <div className="flex items-center gap-3 bg-white border border-stone-200 rounded-lg p-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-stone-500 hover:text-[#c0694e]"
-                    onClick={() => onUpdate(item.id, -1)}
-                  >
-                    <Minus size={14} strokeWidth={3} />
-                  </Button>
-
-                  <span className="text-sm font-bold w-4 text-center text-stone-700">
-                    {item.quantity}
-                  </span>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-stone-500 hover:text-[#c0694e]"
-                    onClick={() => onUpdate(item.id, 1)}
-                  >
-                    <Plus size={14} strokeWidth={3} />
-                  </Button>
-                  {/* Delete Button */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
-                    onClick={() => {
-                      onDelete(item.id);
-                    }}
-                  >
-                    <X size={18} />
-                  </Button>
-                </div>
-              </div>
-            ))
+              ))
           ) : (
             <div className="text-center py-10">
               <p className="text-stone-400 text-sm italic">
@@ -117,6 +118,7 @@ export function CartPopup({
             <span className="text-lg font-bold text-[#3d2b1f]">
               Rs.
               {cartItems
+                .filter((item) => item && typeof item.price === "number")
                 .reduce((acc, item) => acc + item.price * item.quantity, 0)
                 .toFixed(2)}
             </span>
@@ -134,7 +136,7 @@ export function CartPopup({
           <Button
             variant="destructive"
             onClick={() => {
-              onClear();
+              handleClearCart();
               setIsOpen(false);
             }}
             className="text-stone-800 hover:bg-stone-50"
@@ -144,7 +146,7 @@ export function CartPopup({
           <Button
             className="bg-[#c0694e] hover:bg-[#a0523d] text-white px-8 rounded-lg"
             onClick={() => {
-              onCheckout();
+              handleCheckout();
               setIsOpen(false);
             }}
           >

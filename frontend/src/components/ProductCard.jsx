@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart } from "lucide-react";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { AddToCartPopup } from "./AddToCartPopup";
 
-export default function ProductCard({ product, onUpdate }) {
+export default function ProductCard({ product }) {
   const [wishlisted, setWishlisted] = useState(false);
   const inStock = product.stock > 0;
 
@@ -74,11 +73,7 @@ export default function ProductCard({ product, onUpdate }) {
           <span className="text-lg font-bold text-stone-800">
             Rs.{product.price.toFixed(2)}
           </span>
-          <AddToCartPopup
-            key={product.id}
-            product={product}
-            onUpdate={onUpdate}
-          />
+          <AddToCartPopup key={product.id} product={product} />
         </div>
       </CardContent>
     </Card>

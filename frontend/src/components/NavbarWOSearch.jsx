@@ -1,14 +1,11 @@
-import { Input } from "@/components/ui/input";
-import { Search, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { CartPopup } from "@/components/CartPopup";
 import ProfileDropdown from "./ProfileDropdown";
 import { useStore } from "@/store/useStore";
 import { Link } from "react-router-dom";
 
-export default function Navbar() {
+export default function NavbarWOSearch() {
   const cartItems = useStore((state) => state.cartItems);
-  const search = useStore((state) => state.search);
-  const setSearch = useStore((state) => state.setSearch);
   const handleUpdateQuantity = useStore((state) => state.handleUpdateQuantity);
   const handleClearCart = useStore((state) => state.handleClearCart);
   const handleDeleteCartItem = useStore((state) => state.handleDeleteCartItem);
@@ -41,24 +38,15 @@ export default function Navbar() {
             </span>
           </div>
         </Link>
-        {/* Search */}
-        <div className="relative w-72 hidden md:block">
-          <Search
-            size={15}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"
-          />
-          <Input
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9 text-sm border-stone-200 bg-white/70 focus:bg-white rounded-lg"
-            style={{ fontFamily: "Georgia, serif" }}
-          />
-        </div>
-
         {/* CART */}
         <div className="flex items-center gap-2">
-          <CartPopup />
+          <CartPopup
+            cartItems={cartItems}
+            onUpdate={handleUpdateQuantity}
+            onClear={handleClearCart}
+            onDelete={handleDeleteCartItem}
+            onCheckout={handleCheckout}
+          />
           {/* Profile Dropdown */}
           <ProfileDropdown />
         </div>

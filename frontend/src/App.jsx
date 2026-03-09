@@ -6,45 +6,23 @@ import { Toaster } from "sonner";
 import OrderHistory from "./pages/OrderHistory";
 import ProfilePage from "./pages/ProfilePage";
 import LogoIcon from "./components/LogoIcon";
-import { Layout } from "./components/Layout";
+import { Layout1, Layout2 } from "./components/Layout";
 
-import { authService } from "./services/authService";
-// const GlobalLogoutButton = () => {
-//   const navigate = useNavigate();
-//   const token = localStorage.getItem("access_token");
-//
-//   // Don't show the button if the user isn't logged in
-//   if (!token) return null;
-//
-//   const handleLogout = () => {
-//     authService.logout();
-//     navigate("/Login");
-//   };
-//
-//   return (
-//     <button
-//       onClick={handleLogout}
-//       className="fixed top-6 left-6 z-50 text-gray-500 hover:text-red-600 text-sm font-medium transition-colors"
-//     >
-//       ← Logout
-//     </button>
-//   );
+// const GlobalLogoIcon = () => {
+//   return <LogoIcon />;
 // };
-
-const GlobalLogoIcon = () => {
-  return <LogoIcon />;
-};
 function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-center" richColors closeButton />
-      {/* <GlobalLogoutButton /> */}
-      <GlobalLogoIcon />
+      {/* <GlobalLogoIcon /> */}
       <Routes>
-        <Route element={<Layout />}>
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+        <Route element={<Layout1 />}>
           <Route path="/" element={<Dashboard />} />
+        </Route>
+        <Route element={<Layout2 />}>
           <Route path="/orders" element={<OrderHistory />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>

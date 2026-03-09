@@ -9,13 +9,13 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { cartService } from "@/services/cartService";
+import { useStore } from "@/store/useStore";
 
 export function AddToCartPopup({ product, onUpdate }) {
   const [isOpen, setIsOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const inStock = product.stock > 0;
-
+  const handleAddToCart = useStore((state) => state.handleAddToCart);
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -77,7 +77,7 @@ export function AddToCartPopup({ product, onUpdate }) {
           </Button>
           <Button
             onClick={() => {
-              onUpdate(product.id, quantity);
+              handleAddToCart(product.id, quantity);
               setIsOpen(false);
             }}
             className="bg-[#c0694e] hover:bg-[#a0523d] text-white"
