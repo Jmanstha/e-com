@@ -10,27 +10,22 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { orderService } from "@/services/orderService";
 import Navbar from "@/components/Navbar";
+import OrderOptions from "@/components/OrderOptions";
+import { useStore } from "@/store/useStore";
 
 // TO DO
 // STATUS IS CHECKED AS STRING BUT I RETURN ENUMS. nvm it works as enums
 // DATE IS DATETIME OBJECT NOT STRING
 
 const OrderHistory = () => {
-  const [orders, setOrders] = useState([]);
-
+  const orders = useStore((state) => state.orders);
+  const fetchOrders = useStore((state) => state.fetchOrders);
   useEffect(() => {
-    const fetchData = async () => {
-      // 1. Always try to get products (Public)
-      try {
-        const orderItemData = await orderService.getOrderItems();
-        setOrders(orderItemData);
-      } catch (err) {
-        console.error("Order Item retrieval failed", err);
-      }
-    };
-
-    fetchData();
-  }, []);
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      fetchOrders();
+    }
+  }, [fetchOrders]);
 
   const getStatusStyles = (status) => {
     switch (status.toLowerCase()) {
@@ -107,9 +102,9 @@ const OrderHistory = () => {
                         {styles.icon}
                         {order.status}
                       </Badge>
-                      <button className="text-stone-300 hover:text-[#c0694e] transition-colors">
-                        <ChevronRight size={20} />
-                      </button>
+                      <div className="text-stone-300 hover:text-[#c0694e] transition-colors">
+                        <OrderOptions orderItemId={order.id} />
+                      </div>
                     </div>
                   </div>
                 </CardContent>

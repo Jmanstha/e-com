@@ -11,9 +11,6 @@ export const useStore = create((set, get) => ({
   cartItems: [],
   setCartItems: (items) => set({ cartItems: items }),
 
-  products: [],
-  setProducts: (product) => set({ product: product }),
-
   fetchCartItems: async () => {
     const token = localStorage.getItem("access_token");
     console.log("Token at fetch time:", token);
@@ -26,12 +23,29 @@ export const useStore = create((set, get) => ({
       }
     }
   },
+
+  products: [],
+  setProducts: (product) => set({ product: product }),
+
   fetchProducts: async () => {
     try {
       const productData = await productService.getAllProducts();
       set({ products: productData });
     } catch (err) {
-      console.error("Products failed", err);
+      console.error("Products retrieval failed", err);
+    }
+  },
+
+  orders: [],
+  setOrders: (orders) => set({ orders: orders }),
+
+  fetchOrders: async () => {
+    try {
+      const orderItemData = await orderService.getOrderItems();
+      console.log("fetched orders:", orderItemData);
+      set({ orders: orderItemData });
+    } catch (err) {
+      console.error("Order retrieval failed", err);
     }
   },
 
@@ -113,6 +127,19 @@ export const useStore = create((set, get) => ({
     } catch (err) {
       console.error("Failed place order", err);
       toast.error("Could not place the order. Please try again.");
+    }
+  },
+  handleCancelOrder: async (orderItemId) => {
+    try {
+      await orderService.cancelOrderItem(orderItemId);
+      toast.success("Order Cancel Success", {
+        description: "Canceled your order successfully!",
+      });
+      const freshOrders = await orderService.getOrderItems();
+      set({ orders: freshOrders });
+    } catch (err) {
+      console.error("Failed to cancel order", err);
+      toast.error("Could not cancel the order. PLease try again");
     }
   },
 }));

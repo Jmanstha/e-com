@@ -2,7 +2,7 @@ import uuid
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from sqlmodel import delete, select
 
 from app.models.dbmodel import Cart, CartItem, Order, OrderItem, Product, User
 from app.schemas.schema import OrderItemDisplay, OrderStatus
@@ -95,3 +95,24 @@ async def get_users_order_items(
         )
         for r in order_item
     ]
+
+
+async def cancel_order_item(
+    *,
+    order_item_id: uuid.UUID,
+    session: AsyncSession,
+    user: User,
+):
+    stmt = select(OrderItem).where(OrderItem.id == order_item_id)
+    order_item = await session.execute(stmt)
+
+    if order_item:
+        delete_stmt = delete(OrderItem).where(
+            OrderItem.id == order_item_id  # pyright: ignore
+        )
+        await session.execute(delete_stmt)
+
+    if order_item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order item not found"
+        )

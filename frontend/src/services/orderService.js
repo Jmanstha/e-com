@@ -20,4 +20,13 @@ export const orderService = {
       throw error;
     }
   },
+
+  async cancelOrderItem(orderItemId) {
+    try {
+      const response = await api.delete(`/order/${orderItemId}`);
+      return response.date;
+    } catch (error) {
+      this.handleError(error, "cancelling order item");
+    }
+  },
 };

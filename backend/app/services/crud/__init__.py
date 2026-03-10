@@ -8,7 +8,12 @@ from .cart import (
     remove_cart_item,
     update_quantity,
 )
-from .order import create_order, create_order_items, get_users_order_items
+from .order import (
+    cancel_order_item,
+    create_order,
+    create_order_items,
+    get_users_order_items,
+)
 from .product import (
     create_product,
     get_product_by_id,
