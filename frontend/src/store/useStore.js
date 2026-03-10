@@ -102,7 +102,7 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  handleCheckout: async () => {
+  handlePlaceOrder: async () => {
     try {
       await orderService.placeOrder();
       const freshCart = await cartService.getCartItems();

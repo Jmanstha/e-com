@@ -28,7 +28,7 @@ export default function ProfilePage() {
           My Profile
         </h1>
 
-        <Card className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden">
+        <Card className="border-0 shadow-lg bg-white rounded-2xl overflow-hidden">
           <CardContent className="p-8">
             {/* Profile Header */}
             <div className="flex items-center gap-6 mb-8">

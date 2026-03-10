@@ -9,7 +9,7 @@ export default function NavbarWOSearch() {
   const handleUpdateQuantity = useStore((state) => state.handleUpdateQuantity);
   const handleClearCart = useStore((state) => state.handleClearCart);
   const handleDeleteCartItem = useStore((state) => state.handleDeleteCartItem);
-  const handleCheckout = useStore((state) => state.handleCheckout);
+  const handlePlaceOrder = useStore((state) => state.handlePlaceOrder);
 
   return (
     <nav
@@ -45,7 +45,7 @@ export default function NavbarWOSearch() {
             onUpdate={handleUpdateQuantity}
             onClear={handleClearCart}
             onDelete={handleDeleteCartItem}
-            onCheckout={handleCheckout}
+            onCheckout={handlePlaceOrder}
           />
           {/* Profile Dropdown */}
           <ProfileDropdown />

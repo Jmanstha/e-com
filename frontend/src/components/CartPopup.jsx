@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,8 +18,13 @@ export function CartPopup() {
   const cartItems = useStore((state) => state.cartItems) || [];
   const handleClearCart = useStore((state) => state.handleClearCart);
   const handleDeleteCartItem = useStore((state) => state.handleDeleteCartItem);
-  const handleCheckout = useStore((state) => state.handleCheckout);
+  const handlePlaceOrder = useStore((state) => state.handlePlaceOrder);
 
+  const navigate = useNavigate();
+
+  const handleCheckoutButtonClick = () => {
+    navigate("/checkout");
+  };
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -146,7 +152,8 @@ export function CartPopup() {
           <Button
             className="bg-[#c0694e] hover:bg-[#a0523d] text-white px-8 rounded-lg"
             onClick={() => {
-              handleCheckout();
+              handlePlaceOrder();
+              handleCheckoutButtonClick();
               setIsOpen(false);
             }}
           >

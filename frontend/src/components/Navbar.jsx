@@ -6,13 +6,8 @@ import { useStore } from "@/store/useStore";
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
-  const cartItems = useStore((state) => state.cartItems);
   const search = useStore((state) => state.search);
   const setSearch = useStore((state) => state.setSearch);
-  const handleUpdateQuantity = useStore((state) => state.handleUpdateQuantity);
-  const handleClearCart = useStore((state) => state.handleClearCart);
-  const handleDeleteCartItem = useStore((state) => state.handleDeleteCartItem);
-  const handleCheckout = useStore((state) => state.handleCheckout);
 
   return (
     <nav

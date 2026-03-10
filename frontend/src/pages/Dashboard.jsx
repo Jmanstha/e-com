@@ -7,7 +7,7 @@ import { useStore } from "@/store/useStore";
 const CATEGORIES = ["All", "Bags", "Accessories", "Clothing", "Favourite"];
 
 export default function Dashboard() {
-  const [search, setSearch] = useState("");
+  const search = useStore((state) => state.search);
   const [activeCategory, setActiveCategory] = useState("All");
   // const [products, setProducts] = useState([]);
   const products = useStore((state) => state.products);
@@ -82,7 +82,6 @@ export default function Dashboard() {
           </div>
         )}
       </main>
-      <Footer />
     </div>
   );
 }

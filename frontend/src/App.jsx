@@ -5,8 +5,8 @@ import Dashboard from "./pages/Dashboard";
 import { Toaster } from "sonner";
 import OrderHistory from "./pages/OrderHistory";
 import ProfilePage from "./pages/ProfilePage";
-import LogoIcon from "./components/LogoIcon";
 import { Layout1, Layout2 } from "./components/Layout";
+import Checkout from "./pages/Checkout";
 
 // const GlobalLogoIcon = () => {
 //   return <LogoIcon />;
@@ -25,6 +25,7 @@ function App() {
         <Route element={<Layout2 />}>
           <Route path="/orders" element={<OrderHistory />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Route>
       </Routes>
     </BrowserRouter>
