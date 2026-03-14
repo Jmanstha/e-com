@@ -3,6 +3,7 @@ import { cartService } from "@/services/cartService";
 import { orderService } from "@/services/orderService";
 import { productService } from "@/services/productService";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export const useStore = create((set, get) => ({
   search: "",
@@ -106,7 +107,7 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  handleDeleteCartItems: async (cartItemId) => {
+  handleDeleteCartItem: async (cartItemId) => {
     try {
       await cartService.deleteCartItem(cartItemId);
       const freshCart = await cartService.getCartItems();
@@ -116,9 +117,9 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  handlePlaceOrder: async () => {
+  handlePlaceOrder: async (orderData) => {
     try {
-      await orderService.placeOrder();
+      await orderService.placeOrder(orderData);
       const freshCart = await cartService.getCartItems();
       set({ cartItems: freshCart });
       toast.success("Order Success", {
@@ -139,7 +140,7 @@ export const useStore = create((set, get) => ({
       set({ orders: freshOrders });
     } catch (err) {
       console.error("Failed to cancel order", err);
-      toast.error("Could not cancel the order. PLease try again");
+      toast.error("Could not cancel the order. Please try again");
     }
   },
 }));

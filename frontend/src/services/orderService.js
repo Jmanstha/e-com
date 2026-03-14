@@ -1,12 +1,16 @@
 import api from "../api/axios";
 
+const handleError = (error, action) => {
+  console.error(`Error ${action}:`, error);
+};
+
 export const orderService = {
-  async placeOrder() {
+  async placeOrder(orderData) {
     try {
-      const response = await api.post("/order/");
+      const response = await api.post("/order/", orderData);
       return response.data;
     } catch (error) {
-      this.handleError(error, "placing order");
+      handleError(error, "placing order");
       throw error;
     }
   },
@@ -16,7 +20,7 @@ export const orderService = {
       const response = await api.get("/order/");
       return response.data;
     } catch (error) {
-      this.handleError(error, "retrieving order item");
+      handleError(error, "retrieving order item");
       throw error;
     }
   },
@@ -24,9 +28,10 @@ export const orderService = {
   async cancelOrderItem(orderItemId) {
     try {
       const response = await api.delete(`/order/${orderItemId}`);
-      return response.date;
+      return response.data;
     } catch (error) {
-      this.handleError(error, "cancelling order item");
+      handleError(error, "cancelling order item");
+      throw error;
     }
   },
 };

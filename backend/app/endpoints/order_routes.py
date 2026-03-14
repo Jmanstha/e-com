@@ -11,7 +11,7 @@ from app.models.dbmodel import User
 
 # from app.schemas.schema import ( )
 # Unified import from the new modular structure
-from app.schemas.schema import OrderItemDisplay
+from app.schemas.schema import CreateOrderRequest, OrderItemDisplay
 from app.services import crud
 from app.services.deps import get_current_active_admin, get_current_user
 
@@ -22,6 +22,7 @@ session_dep = Annotated[AsyncSession, Depends(get_async_session)]
 
 @router.post("/")
 async def order_items_in_cart(
+    payload: CreateOrderRequest,
     db: session_dep,
     user: User = Depends(get_current_user),
 ):
@@ -30,6 +31,7 @@ async def order_items_in_cart(
         # because i already use a .being() during my db initialization
         async with db.begin_nested():
             order = await crud.create_order(
+                payload=payload,
                 session=db,
                 user=user,
             )
@@ -73,9 +75,16 @@ async def cancel_order_item(
     db: session_dep,
     user: User = Depends(get_current_user),
 ):
-    await crud.cancel_order_item(
+    product = await crud.cancel_order_item(
         order_item_id=order_item_id,
         session=db,
         user=user,
     )
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
+        )
+
     await db.commit()
+    await db.refresh(product)
+    return {"message": "Order cancelled", "new_stock": product.stock}

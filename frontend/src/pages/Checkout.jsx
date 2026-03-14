@@ -1,8 +1,49 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MapPin, Phone, ChevronDown, X, ShoppingBag } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useStore } from "@/store/useStore";
+import { useNavigate } from "react-router-dom";
 
 export default function CheckoutPage() {
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const handlePlaceOrder = useStore((state) => state.handlePlaceOrder);
+  const [phoneNumber, setPhoneNumber] = useState("");
+
+  useEffect(() => {
+    if (mapRef.current) return;
+
+    const map = L.map("checkout-map").setView([27.7172, 85.324], 13);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
+
+    map.on("click", async (e) => {
+      const { lat, lng } = e.latlng;
+
+      if (markerRef.current) {
+        markerRef.current.setLatLng([lat, lng]);
+      } else {
+        markerRef.current = L.marker([lat, lng]).addTo(map);
+      }
+
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+      );
+      const data = await res.json();
+
+      setSelectedLocation({
+        lat,
+        lng,
+        address: data.display_name,
+      });
+    });
+
+    mapRef.current = map;
+  }, []);
+
   return (
     <div
       className="min-h-screen"
@@ -26,45 +67,39 @@ export default function CheckoutPage() {
                 Pickup Location
               </h2>
 
-              {/* Location Dropdown */}
-              <div className="relative mb-5">
-                <select
-                  className="w-full appearance-none rounded-xl border border-stone-200 bg-[#faf6f1] px-4 py-3 pr-10 text-stone-700 focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{
-                    fontFamily: "Georgia, serif",
-                    focusRingColor: "#c0694e",
-                  }}
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select a location...
-                  </option>
-                  {/* Populate via Google Places API */}
-                </select>
-                <ChevronDown
-                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400"
-                  size={18}
-                />
-              </div>
-
-              {/* Map Div */}
+              {/* Map */}
               <div
                 id="checkout-map"
-                className="w-full rounded-xl overflow-hidden"
+                className="w-full rounded-xl overflow-hidden mb-5"
                 style={{
                   height: "280px",
-                  backgroundColor: "#ede5dc",
                   border: "1px solid #e0d5c8",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
-              >
-                <div className="text-center" style={{ color: "#a0856e" }}>
-                  <MapPin size={32} className="mx-auto mb-2 opacity-40" />
-                  <p className="text-sm opacity-60">Map will load here</p>
+              />
+
+              {/* Selected Location Display */}
+              {selectedLocation ? (
+                <div
+                  className="rounded-xl px-4 py-3 text-sm text-stone-700"
+                  style={{ backgroundColor: "#f0e9e1" }}
+                >
+                  <p
+                    className="font-semibold mb-1"
+                    style={{ color: "#c0694e" }}
+                  >
+                    📍 Selected Location
+                  </p>
+                  <p className="mb-1">{selectedLocation.address}</p>
+                  <p className="text-stone-400 text-xs">
+                    {selectedLocation.lat.toFixed(5)},{" "}
+                    {selectedLocation.lng.toFixed(5)}
+                  </p>
                 </div>
-              </div>
+              ) : (
+                <p className="text-sm text-stone-400 text-center">
+                  Click anywhere on the map to select a pickup location
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -88,6 +123,9 @@ export default function CheckoutPage() {
                   placeholder="Enter your phone number"
                   className="w-full rounded-xl border border-stone-200 bg-[#faf6f1] pl-11 pr-4 py-3 text-stone-700 placeholder-stone-400 focus:outline-none focus:ring-2 focus:border-transparent"
                   style={{ fontFamily: "Georgia, serif" }}
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  required
                 />
               </div>
             </CardContent>
@@ -107,6 +145,18 @@ export default function CheckoutPage() {
               style={{
                 backgroundColor: "#c0694e",
                 fontFamily: "Georgia, serif",
+              }}
+              onClick={() => {
+                if (!selectedLocation)
+                  return alert("Please select a pickup location");
+                if (!phoneNumber)
+                  return alert("Please enter your phone number");
+                handlePlaceOrder({
+                  phone_number: phoneNumber,
+                  latitude: selectedLocation.lat,
+                  longitude: selectedLocation.lng,
+                  address: selectedLocation.address,
+                });
               }}
             >
               <ShoppingBag className="inline mr-2" size={18} />

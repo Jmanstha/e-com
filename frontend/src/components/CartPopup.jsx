@@ -22,7 +22,7 @@ export function CartPopup() {
 
   const navigate = useNavigate();
 
-  const handleCheckoutButtonClick = () => {
+  const navigateToCheckout = () => {
     navigate("/checkout");
   };
   return (
@@ -152,12 +152,11 @@ export function CartPopup() {
           <Button
             className="bg-[#c0694e] hover:bg-[#a0523d] text-white px-8 rounded-lg"
             onClick={() => {
-              handlePlaceOrder();
-              handleCheckoutButtonClick();
+              navigateToCheckout();
               setIsOpen(false);
             }}
           >
-            Checkout
+            Place Order
           </Button>
         </DialogFooter>
       </DialogContent>

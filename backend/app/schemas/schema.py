@@ -91,3 +91,10 @@ class ProductUpdate(SQLModel):
     stock: int | None = None
     category: str | None = None
     image_url: str | None = None
+
+
+class CreateOrderRequest(SQLModel):
+    phone_number: str
+    latitude: float
+    longitude: float
+    address: str

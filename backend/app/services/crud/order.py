@@ -5,12 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import delete, select
 
 from app.models.dbmodel import Cart, CartItem, Order, OrderItem, Product, User
-from app.schemas.schema import OrderItemDisplay, OrderStatus
+from app.schemas.schema import CreateOrderRequest, OrderItemDisplay, OrderStatus
 from app.services import crud
 
 
 async def create_order(
     *,
+    payload: CreateOrderRequest,
     session: AsyncSession,
     user: User,
 ) -> Order:
@@ -19,6 +20,10 @@ async def create_order(
         user_id=user.id,
         total_price=total_price.total_price,
         status=OrderStatus.PENDING,
+        latitude=payload.latitude,
+        longitude=payload.longitude,
+        address=payload.address,
+        phone_number=payload.phone_number,
     )
     if order.ordered_at and order.ordered_at.tzinfo:
         order.ordered_at = order.ordered_at.replace(tzinfo=None)
@@ -104,15 +109,21 @@ async def cancel_order_item(
     user: User,
 ):
     stmt = select(OrderItem).where(OrderItem.id == order_item_id)
-    order_item = await session.execute(stmt)
-
-    if order_item:
-        delete_stmt = delete(OrderItem).where(
-            OrderItem.id == order_item_id  # pyright: ignore
-        )
-        await session.execute(delete_stmt)
+    result = await session.execute(stmt)
+    order_item = result.scalar_one_or_none()
 
     if order_item is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Order item not found"
         )
+    stmt = select(Product).where(Product.id == order_item.product_id)
+    result = await session.execute(stmt)
+    product = result.scalar_one()
+    product.stock += order_item.quantity
+
+    delete_stmt = delete(OrderItem).where(
+        OrderItem.id == order_item_id  # pyright: ignore
+    )
+    await session.execute(delete_stmt)
+
+    return product

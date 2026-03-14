@@ -54,6 +54,10 @@ class Order(SQLModel, table=True):
     status: OrderStatus = Field(
         sa_column=Column(String, nullable=False, server_default="pending")
     )
+    phone_number: str
+    longitude: float
+    latitude: float
+    address: str
 
 
 class OrderItem(SQLModel, table=True):
