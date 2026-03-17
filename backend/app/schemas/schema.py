@@ -98,3 +98,8 @@ class CreateOrderRequest(SQLModel):
     latitude: float
     longitude: float
     address: str
+
+
+class PaymentInitiate(SQLModel):
+    order_id: uuid.UUID
+    amount: int  # in paisa

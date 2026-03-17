@@ -18,7 +18,7 @@ async def create_order(
     total_price = await crud.get_total_price(session=session, user=user)
     order = Order(
         user_id=user.id,
-        total_price=total_price.total_price,
+        total_price=total_price,
         status=OrderStatus.PENDING,
         latitude=payload.latitude,
         longitude=payload.longitude,

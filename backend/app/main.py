@@ -9,6 +9,7 @@ from app.endpoints import (
     auth_routes,
     cart_routes,
     order_routes,
+    payment_routes,
     product_routes,
 )
 from app.models.dbmodel import User
@@ -42,6 +43,7 @@ app.include_router(product_routes.router, prefix="/products")
 app.include_router(cart_routes.router, prefix="/cart")
 app.include_router(order_routes.router, prefix="/order")
 app.include_router(admin_routes.router, prefix="/admin")
+app.include_router(payment_routes.router, prefix="/payment")
 
 
 @app.get("/")

@@ -23,6 +23,16 @@ export const cartService = {
     }
   },
 
+  async getCartsTotal() {
+    try {
+      const response = await api.get("/cart/total");
+      return response.data;
+    } catch (error) {
+      this.handleError(error, "fetching carts total price");
+      throw error;
+    }
+  },
+
   async addToCart(productId, quantity) {
     try {
       const response = await api.post(

@@ -108,7 +108,7 @@ async def get_total_price(
     *,
     session: AsyncSession,
     user: User,
-) -> DisplayTotalPrice:
+) -> int:
     stmt = (
         select(func.sum(Product.price * CartItem.quantity))
         .join(CartItem, Product.id == CartItem.product_id)  # pyright: ignore
@@ -125,7 +125,7 @@ async def get_total_price(
             detail="Cart is empty",
         )
 
-    return DisplayTotalPrice(total_price=total)
+    return total
 
 
 async def clear_cart(

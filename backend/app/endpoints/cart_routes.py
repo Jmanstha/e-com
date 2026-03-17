@@ -31,11 +31,11 @@ async def list_users_cart_items(
     return await crud.get_cartitems(session=db, user=user)
 
 
-@router.get("/total", response_model=DisplayTotalPrice)
+@router.get("/total")
 async def list_users_total_cart_price(
     db: session_dep,
     user: User = Depends(get_current_user),
-):
+) -> int:
     return await crud.get_total_price(session=db, user=user)
 
 

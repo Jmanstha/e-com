@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { cartService } from "@/services/cartService";
 import { orderService } from "@/services/orderService";
 import { productService } from "@/services/productService";
+import { paymentService } from "@/services/paymentService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -49,6 +50,16 @@ export const useStore = create((set, get) => ({
       console.error("Order retrieval failed", err);
     }
   },
+
+  orderId: null,
+  setOrderId: (orderId) => set({ orderId: orderId }),
+
+  selectedLocation: null,
+  setSelectedLocation: (selectedLocation) =>
+    set({ selectedLocation: selectedLocation }),
+
+  phoneNumber: "",
+  setPhoneNumber: (phoneNumber) => set({ phoneNumber: phoneNumber }),
 
   handleUpdateQuantity: async (cartItemId, amount) => {
     set((state) => ({
@@ -119,12 +130,13 @@ export const useStore = create((set, get) => ({
 
   handlePlaceOrder: async (orderData) => {
     try {
-      await orderService.placeOrder(orderData);
+      const response = await orderService.placeOrder(orderData);
       const freshCart = await cartService.getCartItems();
       set({ cartItems: freshCart });
       toast.success("Order Success", {
         description: "Placed your order successfully!",
       });
+      return response.order_id;
     } catch (err) {
       console.error("Failed place order", err);
       toast.error("Could not place the order. Please try again.");
@@ -141,6 +153,16 @@ export const useStore = create((set, get) => ({
     } catch (err) {
       console.error("Failed to cancel order", err);
       toast.error("Could not cancel the order. Please try again");
+    }
+  },
+  handlePayment: async (orderData) => {
+    try {
+      const res = await paymentService.initiatePayment(orderData);
+      if (res.payment_url) {
+        window.location.href = res.payment_url;
+      }
+    } catch (err) {
+      console.error("Failed to initiate payment", err);
     }
   },
 }));

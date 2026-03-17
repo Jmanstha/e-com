@@ -19,6 +19,20 @@ export function CartPopup() {
   const handleClearCart = useStore((state) => state.handleClearCart);
   const handleDeleteCartItem = useStore((state) => state.handleDeleteCartItem);
   const handlePlaceOrder = useStore((state) => state.handlePlaceOrder);
+  const setOrderId = useStore((state) => state.setOrderId);
+
+  const selectedLocation = useStore((state) => state.selectedLocation);
+  const phoneNumber = useStore((state) => state.phoneNumber);
+
+  // const handleOrder = () => {
+  //   const order_id = handlePlaceOrder({
+  //     phone_number: phoneNumber,
+  //     latitude: selectedLocation.lat,
+  //     longitude: selectedLocation.lng,
+  //     address: selectedLocation.address,
+  //   });
+  //   setOrderId(order_id);
+  // };
 
   const navigate = useNavigate();
 
@@ -152,6 +166,7 @@ export function CartPopup() {
           <Button
             className="bg-[#c0694e] hover:bg-[#a0523d] text-white px-8 rounded-lg"
             onClick={() => {
+              // handleOrder();
               navigateToCheckout();
               setIsOpen(false);
             }}

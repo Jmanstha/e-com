@@ -3,13 +3,42 @@ import { MapPin, Phone, ChevronDown, X, ShoppingBag } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useStore } from "@/store/useStore";
 import { useNavigate } from "react-router-dom";
+import { cartService } from "@/services/cartService";
 
 export default function CheckoutPage() {
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const selectedLocation = useStore((state) => state.selectedLocation);
+  const setSelectedLocation = useStore((state) => state.setSelectedLocation);
+
+  const phoneNumber = useStore((state) => state.phoneNumber);
+  const setPhoneNumber = useStore((state) => state.setPhoneNumber);
+
   const mapRef = useRef(null);
   const markerRef = useRef(null);
+  const handlePayment = useStore((state) => state.handlePayment);
+
+  const orderId = useStore((state) => state.orderId);
+
   const handlePlaceOrder = useStore((state) => state.handlePlaceOrder);
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const setOrderId = useStore((state) => state.setOrderId);
+
+  const [total, setTotal] = useState();
+
+  const fetchCartTotal = async () => {
+    const total = await cartService.getCartsTotal();
+    setTotal(total);
+    return total;
+  };
+  const handleOrder = async () => {
+    const order_id = await handlePlaceOrder({
+      phone_number: phoneNumber,
+      latitude: selectedLocation.lat,
+      longitude: selectedLocation.lng,
+      address: selectedLocation.address,
+    });
+    setOrderId(order_id);
+    console.log(order_id);
+    return order_id;
+  };
 
   useEffect(() => {
     if (mapRef.current) return;
@@ -42,7 +71,7 @@ export default function CheckoutPage() {
     });
 
     mapRef.current = map;
-  }, []);
+  }, [setSelectedLocation]);
 
   return (
     <div
@@ -146,21 +175,21 @@ export default function CheckoutPage() {
                 backgroundColor: "#c0694e",
                 fontFamily: "Georgia, serif",
               }}
-              onClick={() => {
+              onClick={async () => {
                 if (!selectedLocation)
                   return alert("Please select a pickup location");
                 if (!phoneNumber)
                   return alert("Please enter your phone number");
-                handlePlaceOrder({
-                  phone_number: phoneNumber,
-                  latitude: selectedLocation.lat,
-                  longitude: selectedLocation.lng,
-                  address: selectedLocation.address,
+                const currentTotal = await fetchCartTotal();
+                const order_id = await handleOrder();
+                handlePayment({
+                  order_id: String(order_id),
+                  amount: Number(currentTotal * 100),
                 });
               }}
             >
               <ShoppingBag className="inline mr-2" size={18} />
-              Confirm Checkout
+              Pay Now
             </button>
           </div>
         </div>
