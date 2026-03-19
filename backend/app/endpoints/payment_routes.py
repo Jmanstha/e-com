@@ -26,6 +26,7 @@ async def initiate_kpg(data: PaymentInitiate):
         raise RuntimeError("KHALTI_INITIATE_URL env var not set")
 
     headers = {"Authorization": f"Key {KHALTI_SECRET_KEY}"}
+    print(f"KEY: '{KHALTI_SECRET_KEY}'")
 
     KHALTI_INITIATE_URL = os.getenv("KHALTI_INITIATE_URL")
     if KHALTI_INITIATE_URL is None:

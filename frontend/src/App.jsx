@@ -7,6 +7,7 @@ import OrderHistory from "./pages/OrderHistory";
 import ProfilePage from "./pages/ProfilePage";
 import { Layout1, Layout2 } from "./components/Layout";
 import Checkout from "./pages/Checkout";
+import PaymentVerifyPage from "./pages/PaymentVerifyPage";
 
 // const GlobalLogoIcon = () => {
 //   return <LogoIcon />;
@@ -27,6 +28,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/checkout" element={<Checkout />} />
         </Route>
+        <Route path="/payment/verify" element={<PaymentVerifyPage />} />
       </Routes>
     </BrowserRouter>
   );
