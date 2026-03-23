@@ -1,15 +1,7 @@
-import { React, useState, useEffect } from "react";
-import {
-  Package,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  ChevronRight,
-} from "lucide-react";
+import { React, useEffect } from "react";
+import { Package, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { orderService } from "@/services/orderService";
-import Navbar from "@/components/Navbar";
 import OrderOptions from "@/components/OrderOptions";
 import { useStore } from "@/store/useStore";
 

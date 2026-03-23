@@ -34,4 +34,15 @@ export const orderService = {
       throw error;
     }
   },
+  async updateOrderStataus(statusInt, orderId) {
+    try {
+      const response = await api.patch(`/order/${statusInt}`, {
+        order_id: orderId,
+      });
+      return response.data;
+    } catch (error) {
+      handleError(error, `updating order status to ${statusInt}`);
+      throw error;
+    }
+  },
 };

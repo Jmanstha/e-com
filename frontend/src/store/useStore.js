@@ -165,4 +165,13 @@ export const useStore = create((set, get) => ({
       console.error("Failed to initiate payment", err);
     }
   },
+  handleUpdateOrderStatus: async (statusInt, orderId) => {
+    try {
+      const res = await orderService.updateOrderStataus(statusInt, orderId);
+      get().fetchOrders();
+      return res.data;
+    } catch (err) {
+      console.error("Failed to update order status", err);
+    }
+  },
 }));

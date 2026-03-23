@@ -27,8 +27,8 @@ function App() {
           <Route path="/orders" element={<OrderHistory />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/payment/verify" element={<PaymentVerifyPage />} />
         </Route>
-        <Route path="/payment/verify" element={<PaymentVerifyPage />} />
       </Routes>
     </BrowserRouter>
   );

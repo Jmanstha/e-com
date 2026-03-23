@@ -64,11 +64,11 @@ class DisplayTotalPrice(SQLModel):
 
 
 class OrderStatus(str, Enum):
-    PENDING = "pending"  # Order created, but money hasn't moved
-    PAID = "paid"  # Money received
-    SHIPPED = "shipped"  # Package with the courier
-    DELIVERED = "delivered"
-    CANCELLED = "cancelled"
+    PENDING = "pending"  # (1) Order created, but money hasn't moved
+    PAID = "paid"  # (2) Money received
+    SHIPPED = "shipped"  # (3) Package with the courier
+    DELIVERED = "delivered"  # (4)
+    CANCELLED = "cancelled"  # (5)
 
 
 class OrderItemDisplay(SQLModel):
@@ -103,3 +103,7 @@ class CreateOrderRequest(SQLModel):
 class PaymentInitiate(SQLModel):
     order_id: uuid.UUID
     amount: int  # in paisa
+
+
+class OrderIdBody(SQLModel):
+    order_id: uuid.UUID

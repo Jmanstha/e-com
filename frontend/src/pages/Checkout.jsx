@@ -36,7 +36,8 @@ export default function CheckoutPage() {
       address: selectedLocation.address,
     });
     setOrderId(order_id);
-    console.log(order_id);
+    localStorage.setItem("pending_order_id", order_id);
+    console.log("Logged at checkout", orderId);
     return order_id;
   };
 

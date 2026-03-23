@@ -5,13 +5,19 @@ from typing import Annotated, List
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from app.database import get_async_session
-from app.models.dbmodel import User
+from app.models.dbmodel import Order, User
 
 # from app.schemas.schema import ( )
 # Unified import from the new modular structure
-from app.schemas.schema import CreateOrderRequest, OrderItemDisplay
+from app.schemas.schema import (
+    CreateOrderRequest,
+    OrderIdBody,
+    OrderItemDisplay,
+    OrderStatus,
+)
 from app.services import crud
 from app.services.deps import get_current_active_admin, get_current_user
 
@@ -88,3 +94,32 @@ async def cancel_order_item(
     await db.commit()
     await db.refresh(product)
     return {"message": "Order cancelled", "new_stock": product.stock}
+
+
+@router.patch("/{status_int}")
+async def update_order_status(
+    order_id: OrderIdBody,
+    status_int: int,
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    if status_int == 2:
+        stmt = select(Order).where(
+            Order.user_id == user.id,
+            Order.id == order_id.order_id,
+        )
+        result = await db.execute(stmt)
+        order = result.scalars().first()
+
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Order not found",
+            )
+
+        order.status = OrderStatus.PAID
+
+        await db.commit()
+        await db.refresh(order)
+
+        return order
