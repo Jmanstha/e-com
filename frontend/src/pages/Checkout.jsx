@@ -98,14 +98,16 @@ export default function CheckoutPage() {
               </h2>
 
               {/* Map */}
-              <div
-                id="checkout-map"
-                className="w-full rounded-xl overflow-hidden mb-5"
-                style={{
-                  height: "280px",
-                  border: "1px solid #e0d5c8",
-                }}
-              />
+              <div className="relative" style={{ zIndex: 0 }}>
+                <div
+                  id="checkout-map"
+                  className="w-full rounded-xl overflow-hidden mb-5"
+                  style={{
+                    height: "280px",
+                    border: "1px solid #e0d5c8",
+                  }}
+                />
+              </div>
 
               {/* Selected Location Display */}
               {selectedLocation ? (

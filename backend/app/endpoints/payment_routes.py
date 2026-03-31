@@ -32,17 +32,35 @@ async def initiate_kpg(data: PaymentInitiate):
     if KHALTI_INITIATE_URL is None:
         raise RuntimeError("KHALTI_INITIATE_URL env var not set")
 
-    async with httpx.AsyncClient() as client:
-        res = await client.post(
-            KHALTI_INITIATE_URL,
-            json=payload,
-            headers=headers,
-        )
-    return res.json()  # contains payment_url, pidx
+    # async with httpx.AsyncClient() as client:
+    #     res = await client.post(
+    #         KHALTI_INITIATE_URL,
+    #         json=payload,
+    #         headers=headers,
+    #     )
+    # return res.json()  # contains payment_url, pidx
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            res = await client.post(
+                KHALTI_INITIATE_URL,
+                json=payload,
+                headers=headers,
+            )
+            res.raise_for_status()  # raises on 4xx/5xx from Khalti
+            return res.json()
+        except httpx.ConnectTimeout:
+            raise HTTPException(
+                status_code=502, detail=f"Khalti unreachable at: {KHALTI_INITIATE_URL}"
+            )
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(
+                status_code=e.response.status_code, detail=e.response.text
+            )
 
 
 # verify with kpg that the transation was complete
-@router.post("/verify")
+@router.get("/verify")
 async def verify_payment(pidx: str):
     headers = {"Authorization": f"Key {os.getenv('KHALTI_SECRET_KEY')}"}
 

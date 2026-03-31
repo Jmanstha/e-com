@@ -18,11 +18,6 @@ export function CartPopup() {
   const cartItems = useStore((state) => state.cartItems) || [];
   const handleClearCart = useStore((state) => state.handleClearCart);
   const handleDeleteCartItem = useStore((state) => state.handleDeleteCartItem);
-  const handlePlaceOrder = useStore((state) => state.handlePlaceOrder);
-  const setOrderId = useStore((state) => state.setOrderId);
-
-  const selectedLocation = useStore((state) => state.selectedLocation);
-  const phoneNumber = useStore((state) => state.phoneNumber);
 
   // const handleOrder = () => {
   //   const order_id = handlePlaceOrder({

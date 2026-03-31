@@ -3,10 +3,10 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from sqlmodel import join, select
 
 from app.database import get_async_session
-from app.models.dbmodel import Cart, CartItem, User
+from app.models.dbmodel import Cart, CartItem, Product, User
 from app.schemas.schema import (
     CartItemDisplay,
     CartItemUpdate,
@@ -121,19 +121,26 @@ async def inc_dec_cart_item_quantity(
     amount: int,
     user: User = Depends(get_current_user),
 ):
-    stmt = select(CartItem).where(
-        CartItem.id == cart_item_id,
+    stmt = (
+        select(CartItem, Product)
+        .join(Product, Product.id == CartItem.product_id)  # pyright: ignore
+        .where(
+            CartItem.id == cart_item_id,
+        )
     )
     result = await db.execute(stmt)
-    cart_item = result.scalar_one_or_none()
+    cart_item = result.fetchone()
     if cart_item is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Item not found in cart"
         )
-    cart_item.quantity += amount
+    cart_item.CartItem.quantity += amount
 
-    if cart_item.quantity < 1:
-        cart_item.quantity = 1
+    if cart_item.CartItem.quantity < 1:
+        cart_item.CartItem.quantity = 1
+
+    if cart_item.CartItem.quantity > cart_item.Product.stock:
+        cart_item.CartItem.quantity = cart_item.Product.stock
 
     await db.commit()
     await db.refresh(cart_item)

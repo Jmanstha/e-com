@@ -10,30 +10,40 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+const params = new URLSearchParams(window.location.search);
+const pidx = params.get("pidx");
+
+// Store pidx in sessionStorage immediately in case of HMR reload
+if (pidx) {
+  sessionStorage.setItem("khalti_pidx", pidx);
+}
+
+// Fall back to sessionStorage if pidx disappeared from URL
+const resolvedPidx = pidx || sessionStorage.getItem("khalti_pidx");
+
 export default function PaymentVerifyPage() {
-  const [status, setStatus] = useState("verifying");
+  const [status, setStatus] = useState(pidx ? "verifying" : "failed");
   const orderId = localStorage.getItem("pending_order_id");
   const handleUpdateOrderStatus = useStore(
     (state) => state.handleUpdateOrderStatus,
   );
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const pidx = params.get("pidx");
-    if (pidx) {
-      api
-        .post(`/payment/verify?pidx=${pidx}`)
-        .then((res) => {
-          if (res.data.status === "Completed") {
-            setStatus("success");
-            handleUpdateOrderStatus(2, orderId);
-            localStorage.removeItem("pending_order_id");
-          } else {
-            setStatus("failed");
-          }
-        })
-        .catch(() => setStatus("failed"));
-    }
+    if (!resolvedPidx) return;
+
+    api
+      .get(`/payment/verify?pidx=${pidx}`)
+      .then((res) => {
+        if (res.data.status === "Completed") {
+          sessionStorage.removeItem("khalti_pidx");
+          setStatus("success");
+          handleUpdateOrderStatus(2, orderId);
+          localStorage.removeItem("pending_order_id");
+        } else {
+          setStatus("failed");
+        }
+      })
+      .catch(() => setStatus("failed"));
   }, [handleUpdateOrderStatus, orderId]);
 
   return (

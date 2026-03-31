@@ -62,6 +62,7 @@ export const useStore = create((set, get) => ({
   setPhoneNumber: (phoneNumber) => set({ phoneNumber: phoneNumber }),
 
   handleUpdateQuantity: async (cartItemId, amount) => {
+    // optimisitc increment/decrement
     set((state) => ({
       cartItems: state.cartItems.map((item) => {
         // new array loop through every item
@@ -138,7 +139,7 @@ export const useStore = create((set, get) => ({
       });
       return response.order_id;
     } catch (err) {
-      console.error("Failed place order", err);
+      console.error("Failed to place order", err);
       toast.error("Could not place the order. Please try again.");
     }
   },
