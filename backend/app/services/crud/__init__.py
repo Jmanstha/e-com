@@ -9,9 +9,11 @@ from .cart import (
     update_quantity,
 )
 from .order import (
-    cancel_order_item,
     create_order,
     create_order_items,
+    delete_all_order_items_of_order,
+    delete_order,
+    delete_order_item,
     get_users_order_items,
     get_users_orders,
 )

@@ -34,12 +34,12 @@ export const orderService = {
     }
   },
 
-  async cancelOrderItem(orderItemId) {
+  async deleteOrder(orderId) {
     try {
-      const response = await api.delete(`/order/${orderItemId}`);
+      const response = await api.delete(`/order/${orderId}`);
       return response.data;
     } catch (error) {
-      handleError(error, "cancelling order item");
+      handleError(error, "deleting order item");
       throw error;
     }
   },

@@ -131,7 +131,7 @@ async def get_users_order_items(
     ]
 
 
-async def cancel_order_item(
+async def delete_order_item(
     *,
     order_item_id: uuid.UUID,
     session: AsyncSession,
@@ -156,3 +156,67 @@ async def cancel_order_item(
     await session.execute(delete_stmt)
 
     return product
+
+
+async def delete_order(
+    *,
+    order_id: uuid.UUID,
+    session: AsyncSession,
+    user: User,
+):
+    allowed = [OrderStatus.CANCELLED]
+
+    stmt = select(Order).where(Order.id == order_id)
+    result = await session.execute(stmt)
+    order = result.scalar_one_or_none()
+
+    if order is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
+    if order.status not in allowed:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Order cannot be deleted. Only cancelled orders can be deleted, current status is '{order.status}'",
+        )
+
+    await delete_all_order_items_of_order(
+        order_id=order_id,
+        session=session,
+        user=user,
+    )
+
+    delete_stmt = delete(Order).where(
+        Order.id == order_id  # pyright: ignore
+    )
+    await session.execute(delete_stmt)
+
+
+async def delete_all_order_items_of_order(
+    *,
+    order_id: uuid.UUID,
+    session: AsyncSession,
+    user: User,
+):
+    stmt = select(OrderItem).where(OrderItem.order_id == order_id)
+    result = await session.execute(stmt)
+    order_items = result.scalars().all()
+
+    if not order_items:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order Item not found in order",
+        )
+
+    for order_item in order_items:
+        stmt = select(Product).where(Product.id == order_item.product_id)
+        result = await session.execute(stmt)
+        product = result.scalar_one()
+        product.stock += order_item.quantity
+
+        session.add(product)
+
+        delete_stmt = delete(OrderItem).where(
+            OrderItem.id == order_item.id  # pyright: ignore
+        )
+        await session.execute(delete_stmt)

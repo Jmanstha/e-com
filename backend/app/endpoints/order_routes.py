@@ -90,13 +90,13 @@ async def list_orders(
     return orders
 
 
-@router.delete("/{order_item_id}")
-async def cancel_order_item(
+@router.delete("/order_item/{order_item_id}")
+async def delete_order_item(
     order_item_id: uuid.UUID,
     db: session_dep,
     user: User = Depends(get_current_user),
 ):
-    product = await crud.cancel_order_item(
+    product = await crud.delete_order_item(
         order_item_id=order_item_id,
         session=db,
         user=user,
@@ -109,6 +109,22 @@ async def cancel_order_item(
     await db.commit()
     await db.refresh(product)
     return {"message": "Order cancelled", "new_stock": product.stock}
+
+
+@router.delete("/{order_id}")
+async def delete_order(
+    order_id: uuid.UUID,
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    await crud.delete_order(
+        order_id=order_id,
+        session=db,
+        user=user,
+    )
+
+    await db.commit()
+    return {"message": "Order cancelled"}
 
 
 @router.patch("/{order_id}/status")

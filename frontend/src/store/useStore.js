@@ -156,17 +156,19 @@ export const useStore = create((set, get) => ({
       toast.error("Could not place the order. Please try again.");
     }
   },
-  handleCancelOrder: async (orderId) => {
+  handleDeleteOrder: async (orderId) => {
     try {
-      await orderService.cancelOrderItem(orderId);
-      toast.success("Order Cancel Success", {
-        description: "Canceled your order successfully!",
+      await orderService.deleteOrder(orderId);
+      toast.success("Order Deletion Success", {
+        description: "Deleted your order successfully!",
       });
-      const freshorderItems = await orderService.getOrderItems();
-      set({ orderItems: freshorderItems });
+      const freshOrders = await orderService.getOrders();
+      set({ orders: freshOrders });
     } catch (err) {
-      console.error("Failed to cancel order", err);
-      toast.error("Could not cancel the order. Please try again");
+      console.error("Failed to delete order", err);
+      toast.error(
+        err?.response?.data?.detail ?? err.message ?? "Failed to delete order",
+      );
     }
   },
   handlePayment: async (orderData) => {
