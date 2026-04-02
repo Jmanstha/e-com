@@ -5,7 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import delete, select
 
 from app.models.dbmodel import Cart, CartItem, Order, OrderItem, Product, User
-from app.schemas.schema import CreateOrderRequest, OrderItemDisplay, OrderStatus
+from app.schemas.schema import (
+    CreateOrderRequest,
+    OrderDisplay,
+    OrderItemDisplay,
+    OrderStatus,
+)
 from app.services import crud
 
 
@@ -73,6 +78,30 @@ async def create_order_items(
 
         session.add(order_item)
         session.add(product)
+
+
+async def get_users_orders(
+    *,
+    session: AsyncSession,
+    user: User,
+):
+    stmt = select(Order).where(Order.user_id == user.id)
+    result = await session.execute(stmt)
+    orders = result.all()
+
+    if not orders:
+        return []
+
+    return [
+        OrderDisplay(
+            id=r.Order.id,
+            total_price=r.Order.total_price,
+            address=r.Order.address,
+            status=r.Order.status,
+            ordered_at=r.Order.ordered_at,
+        )
+        for r in orders
+    ]
 
 
 async def get_users_order_items(

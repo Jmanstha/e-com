@@ -13,10 +13,13 @@ from app.models.dbmodel import Order, User
 # from app.schemas.schema import ( )
 # Unified import from the new modular structure
 from app.schemas.schema import (
+    VALID_TRANSACTIONS,
     CreateOrderRequest,
+    OrderDisplay,
     OrderIdBody,
     OrderItemDisplay,
     OrderStatus,
+    OrderStatusUpdate,
 )
 from app.services import crud
 from app.services.deps import get_current_active_admin, get_current_user
@@ -63,8 +66,8 @@ async def order_items_in_cart(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/", response_model=list[OrderItemDisplay])
-async def list_orders(
+@router.get("/orderitems", response_model=list[OrderItemDisplay])
+async def list_order_items(
     db: session_dep,
     user: User = Depends(get_current_user),
 ):
@@ -73,6 +76,18 @@ async def list_orders(
         user=user,
     )
     return order_item
+
+
+@router.get("/", response_model=list[OrderDisplay])
+async def list_orders(
+    db: session_dep,
+    user: User = Depends(get_current_user),
+):
+    orders = await crud.get_users_orders(
+        session=db,
+        user=user,
+    )
+    return orders
 
 
 @router.delete("/{order_item_id}")
@@ -96,30 +111,40 @@ async def cancel_order_item(
     return {"message": "Order cancelled", "new_stock": product.stock}
 
 
-@router.patch("/{status_int}")
+@router.patch("/{order_id}/status")
 async def update_order_status(
-    order_id: OrderIdBody,
-    status_int: int,
+    body: OrderStatusUpdate,
+    order_id: uuid.UUID,
     db: session_dep,
     user: User = Depends(get_current_user),
 ):
-    if status_int == 2:
-        stmt = select(Order).where(
-            Order.user_id == user.id,
-            Order.id == order_id.order_id,
+    stmt = select(Order).where(
+        Order.user_id == user.id,
+        Order.id == order_id,
+    )
+    result = await db.execute(stmt)
+
+    order = result.scalars().first()
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found",
         )
-        result = await db.execute(stmt)
-        order = result.scalars().first()
 
-        if not order:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Order not found",
-            )
+    allowed = VALID_TRANSACTIONS[order.status]
 
-        order.status = OrderStatus.PAID
+    if body.status not in allowed:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=(
+                f"Cannot transition from '{order.status}' to '{body.status}'. "
+                f"Allowed transitions: {[s.value for s in allowed] or 'none (terminal state)'}"
+            ),
+        )
 
-        await db.commit()
-        await db.refresh(order)
+    order.status = body.status
 
-        return order
+    await db.commit()
+    await db.refresh(order)
+
+    return order

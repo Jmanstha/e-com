@@ -43,11 +43,24 @@ export const useStore = create((set, get) => ({
 
   fetchOrders: async () => {
     try {
-      const orderItemData = await orderService.getOrderItems();
-      console.log("fetched orders:", orderItemData);
-      set({ orders: orderItemData });
+      const ordersData = await orderService.getOrders();
+      console.log("fetched orderItems:", ordersData);
+      set({ orders: ordersData });
     } catch (err) {
       console.error("Order retrieval failed", err);
+    }
+  },
+
+  orderItems: [],
+  setorderItems: (orderItems) => set({ orderItems: orderItems }),
+
+  fetchOrderItems: async () => {
+    try {
+      const orderItemData = await orderService.getOrderItems();
+      console.log("fetched orderItems:", orderItemData);
+      set({ orderItems: orderItemData });
+    } catch (err) {
+      console.error("Order items retrieval failed", err);
     }
   },
 
@@ -143,14 +156,14 @@ export const useStore = create((set, get) => ({
       toast.error("Could not place the order. Please try again.");
     }
   },
-  handleCancelOrder: async (orderItemId) => {
+  handleCancelOrder: async (orderId) => {
     try {
-      await orderService.cancelOrderItem(orderItemId);
+      await orderService.cancelOrderItem(orderId);
       toast.success("Order Cancel Success", {
         description: "Canceled your order successfully!",
       });
-      const freshOrders = await orderService.getOrderItems();
-      set({ orders: freshOrders });
+      const freshorderItems = await orderService.getOrderItems();
+      set({ orderItems: freshorderItems });
     } catch (err) {
       console.error("Failed to cancel order", err);
       toast.error("Could not cancel the order. Please try again");
@@ -166,13 +179,14 @@ export const useStore = create((set, get) => ({
       console.error("Failed to initiate payment", err);
     }
   },
-  handleUpdateOrderStatus: async (statusInt, orderId) => {
+  handleUpdateOrderStatus: async (orderId, status) => {
     try {
-      const res = await orderService.updateOrderStataus(statusInt, orderId);
-      get().fetchOrders();
+      const res = await orderService.updateOrderStatus(orderId, status);
+      const freshOrders = await orderService.getOrders();
+      set({ orders: freshOrders });
       return res.data;
     } catch (err) {
-      console.error("Failed to update order status", err);
+      console.error(`Failed to update order status to ${status}`, err);
     }
   },
 }));

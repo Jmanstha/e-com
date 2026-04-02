@@ -107,3 +107,24 @@ class PaymentInitiate(SQLModel):
 
 class OrderIdBody(SQLModel):
     order_id: uuid.UUID
+
+
+class OrderDisplay(SQLModel):
+    id: uuid.UUID
+    total_price: int
+    address: str
+    status: OrderStatus
+    ordered_at: datetime
+
+
+VALID_TRANSACTIONS: dict[OrderStatus, set[OrderStatus]] = {
+    OrderStatus.PENDING: {OrderStatus.PAID, OrderStatus.CANCELLED},
+    OrderStatus.PAID: {OrderStatus.SHIPPED, OrderStatus.CANCELLED},
+    OrderStatus.SHIPPED: {OrderStatus.DELIVERED},
+    OrderStatus.DELIVERED: set(),  # terminal state
+    OrderStatus.CANCELLED: set(),  # terminal state
+}
+
+
+class OrderStatusUpdate(SQLModel):
+    status: OrderStatus

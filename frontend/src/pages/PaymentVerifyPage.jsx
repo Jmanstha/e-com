@@ -38,12 +38,12 @@ export default function PaymentVerifyPage() {
           sessionStorage.removeItem("khalti_pidx");
           setStatus("success");
           handleUpdateOrderStatus(2, orderId);
-          localStorage.removeItem("pending_order_id");
         } else {
           setStatus("failed");
         }
       })
       .catch(() => setStatus("failed"));
+    localStorage.removeItem("pending_order_id");
   }, [handleUpdateOrderStatus, orderId]);
 
   return (

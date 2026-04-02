@@ -7,8 +7,11 @@ import {
 import { X, ChevronRight } from "lucide-react";
 import { useStore } from "@/store/useStore";
 
-export default function OrderOptions({ orderItemId }) {
+export default function OrderOptions({ orderId }) {
   const handleCancelOrder = useStore((state) => state.handleCancelOrder);
+  const handleUpdateOrderStatus = useStore(
+    (state) => state.handleUpdateOrderStatus,
+  );
 
   return (
     <DropdownMenu>
@@ -23,7 +26,7 @@ export default function OrderOptions({ orderItemId }) {
         className="w-48 p-1 bg-white border-stone-200 shadow-xl rounded-lg mt-2"
       >
         <DropdownMenuItem
-          onClick={() => handleCancelOrder(orderItemId)}
+          onClick={() => handleUpdateOrderStatus(orderId, "cancelled")}
           className="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 cursor-pointer hover:bg-stone-50 rounded-md"
         >
           <X size={18} />

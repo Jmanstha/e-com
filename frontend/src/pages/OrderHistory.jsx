@@ -10,14 +10,19 @@ import { useStore } from "@/store/useStore";
 // DATE IS DATETIME OBJECT NOT STRING
 
 const OrderHistory = () => {
+  const orderItems = useStore((state) => state.orderItems);
+  const fetchOrderItems = useStore((state) => state.fetchOrderItems);
+
   const orders = useStore((state) => state.orders);
   const fetchOrders = useStore((state) => state.fetchOrders);
+
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (token) {
+      fetchOrderItems();
       fetchOrders();
     }
-  }, [fetchOrders]);
+  }, [fetchOrderItems, fetchOrders]);
 
   const getStatusStyles = (status) => {
     switch (status.toLowerCase()) {
@@ -73,12 +78,26 @@ const OrderHistory = () => {
 
                       <div>
                         <h3 className="font-semibold text-stone-800">
-                          {order.name}
+                          Rs.{order.total_price}
                         </h3>
-                        <div className="flex items-center gap-3 mt-1 text-sm text-stone-500">
-                          <span>Qty: {order.quantity}</span>
-                          <span>•</span>
-                          <span>Ordered on {order.date}</span>
+                        <div className="flex flex-col items-center gap-3 mt-1 text-sm text-stone-500">
+                          <span>
+                            Address:{" "}
+                            {order.address.split(",").slice(0, 2).join(",")}
+                          </span>
+                          <span>
+                            Ordered:{" "}
+                            {new Date(order.ordered_at).toLocaleString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -95,7 +114,7 @@ const OrderHistory = () => {
                         {order.status}
                       </Badge>
                       <div className="text-stone-300 hover:text-[#c0694e] transition-colors">
-                        <OrderOptions orderItemId={order.id} />
+                        <OrderOptions orderId={order.id} />
                       </div>
                     </div>
                   </div>
@@ -105,7 +124,7 @@ const OrderHistory = () => {
           })}
         </div>
 
-        {/* Empty State Logic (For when orders.length === 0) */}
+        {/* Empty State Logic (For when orderItems.length === 0) */}
         {orders.length === 0 && (
           <div className="text-center py-20 bg-white rounded-xl border border-dashed border-stone-200">
             <Package size={48} className="mx-auto text-stone-300 mb-4" />

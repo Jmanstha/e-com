@@ -14,10 +14,19 @@ export const orderService = {
       throw error;
     }
   },
+  async getOrders() {
+    try {
+      const response = await api.get("/order/");
+      return response.data;
+    } catch (error) {
+      handleError(error, "retrieving orders");
+      throw error;
+    }
+  },
 
   async getOrderItems() {
     try {
-      const response = await api.get("/order/");
+      const response = await api.get("/order/orderitems");
       return response.data;
     } catch (error) {
       handleError(error, "retrieving order item");
@@ -34,14 +43,14 @@ export const orderService = {
       throw error;
     }
   },
-  async updateOrderStataus(statusInt, orderId) {
+  async updateOrderStatus(orderId, status) {
     try {
-      const response = await api.patch(`/order/${statusInt}`, {
-        order_id: orderId,
+      const response = await api.patch(`/order/${orderId}/status`, {
+        status: status,
       });
       return response.data;
     } catch (error) {
-      handleError(error, `updating order status to ${statusInt}`);
+      handleError(error, `updating order status to ${status}`);
       throw error;
     }
   },

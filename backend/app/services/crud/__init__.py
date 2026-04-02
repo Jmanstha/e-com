@@ -13,6 +13,7 @@ from .order import (
     create_order,
     create_order_items,
     get_users_order_items,
+    get_users_orders,
 )
 from .product import (
     create_product,

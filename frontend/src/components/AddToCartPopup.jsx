@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { useStore } from "@/store/useStore";
 
-export function AddToCartPopup({ product, onUpdate }) {
+export function AddToCartPopup({ product }) {
   const [isOpen, setIsOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const inStock = product.stock > 0;
