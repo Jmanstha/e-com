@@ -73,10 +73,12 @@ class OrderStatus(str, Enum):
 
 class OrderItemDisplay(SQLModel):
     id: uuid.UUID
+    order_id: uuid.UUID
     name: str
     quantity: int
     status: OrderStatus
     date: datetime
+    price_at_purchase: int
 
 
 class CartItemUpdate(SQLModel):

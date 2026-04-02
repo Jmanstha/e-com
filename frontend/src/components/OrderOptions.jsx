@@ -4,7 +4,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { X, ChevronRight } from "lucide-react";
+import { X, ChevronRight, Trash } from "lucide-react";
 import { useStore } from "@/store/useStore";
 
 export default function OrderOptions({ orderId }) {
@@ -36,7 +36,7 @@ export default function OrderOptions({ orderId }) {
           onClick={() => handleDeleteOrder(orderId)}
           className="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 cursor-pointer hover:bg-stone-50 rounded-md"
         >
-          <X size={18} />
+          <Trash size={18} />
           <span>Delete Order Record</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -122,10 +122,12 @@ async def get_users_order_items(
     return [
         OrderItemDisplay(
             id=r.OrderItem.id,
+            order_id=r.OrderItem.order_id,
             name=r.name,
             quantity=r.OrderItem.quantity,
             status=r.Order.status,
             date=r.Order.ordered_at,
+            price_at_purchase=r.OrderItem.price_at_purchase,
         )
         for r in order_item
     ]

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import OrderOptions from "@/components/OrderOptions";
 import { useStore } from "@/store/useStore";
+import { OrderPopup } from "@/components/OrderPopup";
 
 // TO DO
 // STATUS IS CHECKED AS STRING BUT I RETURN ENUMS. nvm it works as enums
@@ -80,7 +81,7 @@ const OrderHistory = () => {
                         <h3 className="font-semibold text-stone-800">
                           Rs.{order.total_price}
                         </h3>
-                        <div className="flex flex-col items-center gap-3 mt-1 text-sm text-stone-500">
+                        <div className="flex flex-col items-start gap-3 mt-1 text-sm text-stone-500">
                           <span>
                             Address:{" "}
                             {order.address.split(",").slice(0, 2).join(",")}
@@ -113,6 +114,11 @@ const OrderHistory = () => {
                         {styles.icon}
                         {order.status}
                       </Badge>
+                      <OrderPopup
+                        orderId={order.id}
+                        total={order.total_price}
+                        status={order.status}
+                      />
                       <div className="text-stone-300 hover:text-[#c0694e] transition-colors">
                         <OrderOptions orderId={order.id} />
                       </div>

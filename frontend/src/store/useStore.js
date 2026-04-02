@@ -44,7 +44,7 @@ export const useStore = create((set, get) => ({
   fetchOrders: async () => {
     try {
       const ordersData = await orderService.getOrders();
-      console.log("fetched orderItems:", ordersData);
+      // console.log("fetched orderItems:", ordersData);
       set({ orders: ordersData });
     } catch (err) {
       console.error("Order retrieval failed", err);
@@ -54,10 +54,10 @@ export const useStore = create((set, get) => ({
   orderItems: [],
   setorderItems: (orderItems) => set({ orderItems: orderItems }),
 
-  fetchOrderItems: async () => {
+  fetchOrderItems: async (orderId) => {
     try {
-      const orderItemData = await orderService.getOrderItems();
-      console.log("fetched orderItems:", orderItemData);
+      const orderItemData = await orderService.getOrderItems(orderId);
+      // console.log("fetched orderItems:", orderItemData);
       set({ orderItems: orderItemData });
     } catch (err) {
       console.error("Order items retrieval failed", err);
